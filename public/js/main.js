@@ -73,13 +73,24 @@ class ServerUI {
     $('.share-url').hide();
     $('.connected-and-waiting').show();
   }
+
+  setStream(stream) {
+    this.video = window.video = document.querySelector('.remote-selfie');
+    this.video.src = window.URL.createObjectURL(stream);
+  }
+
+  clientSnap() {
+    this.video.pause();
+    $(this.video).show();
+  }
 }
 
 class Server {
   constructor() {
     console.log('Server: creating', this.uuid);
     this.setupUuidStoreObserver();
-    this.setupLocalConnection();
+    // this.setupLocalConnection();
+    this.getLocalStream();
     this.ui = new ServerUI(this);
 
     // At the end...
@@ -102,12 +113,32 @@ class Server {
     }
   }
 
+  getLocalStream() {
+    let constraints = { video: true };
+    navigator.getUserMedia(constraints,
+      this.getLocalStreamSuccess.bind(this),
+      this.getLocalStreamError.bind(this));
+  }
+
+  getLocalStreamSuccess(stream) {
+    console.log('Server: getLocalStreamSuccess');
+    this.stream = stream;
+    this.setupLocalConnection();
+  }
+
+  getLocalStreamError(err) {
+    console.log('Server: navigator.getUserMedia error:', err);
+  }
+
   setupLocalConnection() {
     this.local_connection = new RTCPeerConnection(App.connection_config);
     this.local_connection.onicecandidate = this.gotLocalIceCandidate.bind(this);
-    this.local_connection.onaddstream = function(e) {
+    this.local_connection.onaddstream = (e) => {
       console.log('Server: onaddstream', e.stream);
+      this.remote_stream = e.stream;
+      this.ui.setStream(this.remote_stream);
     }
+    this.local_connection.addStream(this.stream);
 
     this.send_channel = this.local_connection.createDataChannel('my-test-channel', {});
     this.send_channel.binaryType = 'arraybuffer';
@@ -131,7 +162,12 @@ class Server {
   }
 
   sendChannelMessage(e) {
-    console.log('Server: sendChannelMessage', e.message);
+    console.log('Server: sendChannelMessage', e.data);
+    switch(e.data) {
+      case 'client-snap':
+        this.ui.clientSnap();
+        break;
+    }
   }
 
   gotLocalDescription(desc) {
@@ -232,6 +268,7 @@ class ClientUI {
   snapPhoto(e) {
     this.video.pause();
     $(this.video).addClass('paused');
+    this.client.sendSnap();
   }
 }
 
@@ -284,8 +321,12 @@ class Client {
   gotRemoteOffer(offer_desc_json) {
     let offer_desc = new RTCSessionDescription(offer_desc_json);
     this.local_connection = new RTCPeerConnection(App.connection_config);
-    this.local_connection.onicecandidate = this.gotLocalIceCandidate.bind(this);
     this.local_connection.ondatachannel = this.gotRemoteDataChannel.bind(this);
+    this.local_connection.onicecandidate = this.gotLocalIceCandidate.bind(this);
+    this.local_connection.onaddstream = (e) => {
+      console.log('Client: onaddstream', e.stream);
+      this.remote_stream = e.stream;
+    }
     this.local_connection.addStream(this.stream);
     this.local_connection.setRemoteDescription(offer_desc);
     this.local_connection.createAnswer(this.answerCreated.bind(this), this.createSessionDescriptionError.bind(this));
@@ -345,11 +386,16 @@ class Client {
   }
 
   receiveChannelMessage(e) {
-    console.log('Client: receiveChannelMessage', e.message);
+    console.log('Client: receiveChannelMessage', e.data);
   }
 
   createSessionDescriptionError(err) {
     console.log('Client: createSessionDescriptionError', err);
+  }
+
+  sendSnap() {
+    console.log('Client: try something');
+    this.receive_channel.send('client-snap');
   }
 
   // addStream(stream) {

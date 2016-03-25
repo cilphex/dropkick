@@ -114,14 +114,11 @@ body.dropped #container p.drop-a-file {
   overflow: hidden;
 }
 
+
 /* ========================================================================= */
-/* Client */
+/* Shared */
 
-#container div.id-required {
-  margin: 50px;
-}
-
-#container div.id-required video.selfie {
+#container video.selfie {
   display: block;
   margin: auto;
   width: 200px;
@@ -134,8 +131,15 @@ body.dropped #container p.drop-a-file {
   transition-timing-function: ease-out;
 }
 
-#container div.id-required video.selfie.paused {
+#container video.selfie.paused {
   border: 5px solid #00AAFF;
+}
+
+/* ========================================================================= */
+/* Client */
+
+#container div.id-required {
+  margin: 50px;
 }
 
 #container div.id-required a.snap-photo {
