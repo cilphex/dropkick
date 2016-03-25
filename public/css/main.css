@@ -48,6 +48,29 @@ body input {
   text-align: center;
 }
 
+#container a.btn {
+  display: inline-block;
+  width: 150px;
+  font-weight: bold;
+  line-height: 50px;
+  text-align: center;
+  text-decoration: none;
+  color: #000;
+  border: 1px solid #000;
+  border-radius: 3px;
+}
+
+#container a.btn:hover,
+#container a.btn:active,
+#container a.btn:focus {
+  color: #fff;
+  background: #000;
+}
+
+#container a.btn:active {
+  background: #555;
+}
+
 /* ========================================================================= */
 /* Server */
 
@@ -69,9 +92,6 @@ body input {
 }
 
 body.drop-hover #container p.drop-a-file {
-  /*color: #00A800;*/
-  /*border-color: #00DA00;*/
-  /*margin-top: 49px;*/
   border-width: 2px;
 }
 
@@ -108,7 +128,6 @@ body.dropped #container p.drop-a-file {
   border: 1px solid #000;
   border-radius: 100px;
   outline: none;
-
   white-space: nowrap;
   text-overflow: ellipsis;
   overflow: hidden;
@@ -123,7 +142,6 @@ body.dropped #container p.drop-a-file {
   margin: auto;
   width: 200px;
   height: 200px;
-  /*background: #000;*/
   border: 1px solid #000;
   border-radius: 1000px;
   object-fit: cover;
@@ -139,30 +157,6 @@ body.dropped #container p.drop-a-file {
 /* Client */
 
 #container div.id-required {
-  margin: 50px;
-}
-
-#container div.id-required a.snap-photo {
-  display: block;
-  margin: 0 auto;
-  width: 150px;
-  font-weight: bold;
-  line-height: 50px;
-  text-align: center;
-  text-decoration: none;
-  color: #000;
-  border: 1px solid #000;
-  border-radius: 3px;
-}
-
-#container div.id-required a.snap-photo:hover,
-#container div.id-required a.snap-photo:active,
-#container div.id-required a.snap-photo:focus {
-  color: #fff;
-  background: #000;
-}
-
-#container div.id-required a.snap-photo:active {
-  background: #555;
+  margin: 50px 0 20px;
 }
 

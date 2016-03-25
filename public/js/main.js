@@ -2,7 +2,7 @@ window.RTCPeerConnection = webkitRTCPeerConnection;
 navigator.getUserMedia = navigator.webkitGetUserMedia;
 
 // ============================================================================
-// Server
+// Server UI
 
 class ServerUI {
   constructor(server) {
@@ -22,6 +22,7 @@ class ServerUI {
 
   fileDropped(file) {
     this.file = file; // should go in Server?
+    this.server.setFile(this.file);
     let fileReader = new FileReader();
     fileReader.onload = this.fileLoaded.bind(this);
     fileReader.readAsDataURL(file);
@@ -60,12 +61,27 @@ class ServerUI {
     $('.share-url input').select();
   }
 
+  rejectUser(e) {
+    e.preventDefault();
+    console.log('Server UI: rejectUser');
+  }
+
+  approveUser(e) {
+    e.preventDefault();
+    console.log('Server UI: approveUser');
+    $('.pending-approval').hide();
+    $('.sending-to-user').show();
+    this.server.sendFile();
+  }
+
   setupListeners() {
     $(document).on('dragenter', 'body', this.dragEnter.bind(this));
     $(document).on('dragleave', 'body', this.dragLeave.bind(this));
     $(document).on('dragover', 'body', this.dragOver.bind(this));
     $(document).on('drop', 'body', this.dragDrop.bind(this));
     $(document).on('focus', '.share-url input', this.selectShareUrl.bind(this));
+    $(document).on('click', '.reject-user', this.rejectUser.bind(this));
+    $(document).on('click', '.approve-user', this.approveUser.bind(this));
   }
 
   waiting() {
@@ -75,15 +91,24 @@ class ServerUI {
   }
 
   setStream(stream) {
-    this.video = window.video = document.querySelector('.remote-selfie');
+    this.video = document.querySelector('.remote-selfie');
     this.video.src = window.URL.createObjectURL(stream);
   }
 
   clientSnap() {
     this.video.pause();
-    $(this.video).show();
+    $('.connected-and-waiting').hide();
+    $('.pending-approval').show();
+  }
+
+  done() {
+    $('.sending-to-user').hide();
+    $('.sent-to-user').show();
   }
 }
+
+// ============================================================================
+// Server
 
 class Server {
   constructor() {
@@ -92,9 +117,6 @@ class Server {
     // this.setupLocalConnection();
     this.getLocalStream();
     this.ui = new ServerUI(this);
-
-    // At the end...
-    // this.send_channel.send('this is a test');
   }
 
   setupUuidStoreObserver() {
@@ -167,6 +189,9 @@ class Server {
       case 'client-snap':
         this.ui.clientSnap();
         break;
+      case 'done-receiving':
+        this.ui.done();
+        break;
     }
   }
 
@@ -211,6 +236,36 @@ class Server {
     console.log('Server: createSessionDescriptionError', err);
   }
 
+  setFile(file) {
+    this.file = file;
+  }
+
+  sendFile() {
+    var file = this.file;
+    var send_channel = this.send_channel;
+
+    console.log('Server: sendFile', file);
+    send_channel.send(file.name);
+    send_channel.send(file.size);
+
+    var chunkSize = 16384;
+    var sliceFile = function(offset) {
+      var reader = new window.FileReader();
+      reader.onload = (function() {
+        return function(e) {
+          send_channel.send(e.target.result);
+          if (file.size > offset + e.target.result.byteLength) {
+            window.setTimeout(sliceFile, 0, offset + chunkSize);
+          }
+          // sendProgress line here
+        }
+      })(file);
+      var slice = file.slice(offset, offset + chunkSize);
+      reader.readAsArrayBuffer(slice);
+    }
+    sliceFile(0);
+  }
+
   get uuid() {
     this.generated_uuid = this.generated_uuid || 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
       var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
@@ -225,7 +280,7 @@ class Server {
 }
 
 // ============================================================================
-// Client
+// Client UI
 
 class ClientUI {
   constructor(client, stream) {
@@ -243,39 +298,28 @@ class ClientUI {
   }
 
   setupVideo() {
-    this.video = window.video = document.querySelector('.selfie');
+    this.video = window.video = document.querySelector('.local-selfie');
     this.video.src = window.URL.createObjectURL(this.stream);
   }
-
-  // setupSelfie() {
-  //   console.log('Client: setupSelfie');
-  //   let constraints = { video: true };
-  //   navigator.getUserMedia(constraints,
-  //     this.setupSelfieSuccess.bind(this),
-  //     this.setupSelfieError.bind(this));
-  // }
-
-  // setupSelfieSuccess(stream) {
-  //   console.log('Client: setupSelfieSuccess');
-  //   this.video.src = window.URL.createObjectURL(stream);
-  //   this.client.addStream(stream);
-  // }
-
-  // setupSelfieError(err) {
-  //   console.log('ClientUI: navigator.getUserMedia error:', err);
-  // }
 
   snapPhoto(e) {
     this.video.pause();
     $(this.video).addClass('paused');
+    $('.snap-button').hide();
+    $('.waiting-for-decision').show();
     this.client.sendSnap();
   }
 }
+
+// ============================================================================
+// Client
 
 class Client {
   constructor(connection_uuid) {
     console.log('Client: creating');
     this.connection_uuid = connection_uuid;
+    this.receivedBuffer = [];
+    this.receivedSize = 0;
     this.setupUuidStoreObserver();
     this.getLocalStream();
     // this.getRemoteOffer(); // moved down
@@ -366,7 +410,7 @@ class Client {
   }
 
   gotRemoteDataChannel(e) {
-    console.log('Client: got remote data channel');
+    console.log('Client: got remote data channel', e);
     this.receive_channel = e.channel;
     this.receive_channel.binaryType = 'arraybuffer';
     this.receive_channel.onmessage = this.receiveChannelMessage.bind(this)
@@ -387,6 +431,51 @@ class Client {
 
   receiveChannelMessage(e) {
     console.log('Client: receiveChannelMessage', e.data);
+
+    // should be in client ui
+    if (!this.showed_receiving) {
+      $('.waiting-for-decision').hide();
+      $('.receiving-file').show();
+      this.showed_receiving = true;
+    }
+
+    if (this.file_size === undefined || this.file_size === null) {
+      this.file_size = 0;
+    }
+
+    if (!this.file_name) {
+      this.file_name = e.data;
+      console.log('Client: file name received:', this.file_name);
+      return;
+    }
+
+    if (!this.file_size) {
+      this.file_size = parseInt(e.data);
+      console.log('Client: file size received:', this.file_size, (typeof this.file_size));
+      return;
+    }
+    else {
+      console.log('Client: new file size:', this.file_size);
+    }
+
+    this.receivedBuffer.push(e.data);
+    this.receivedSize += e.data.byteLength;
+
+    if (this.receivedSize == this.file_size) {
+      console.log('Client: done receiving file');
+
+      var received = new window.Blob(this.receivedBuffer);
+      this.receivedBuffer = [];
+
+      let anchor = document.querySelector('a.download');
+      anchor.href = URL.createObjectURL(received);
+      anchor.download = this.file_name;
+
+      $('.id-required, .receiving-file').hide();
+      $('.received-file').show();
+
+      this.receive_channel.send('done-receiving');
+    }
   }
 
   createSessionDescriptionError(err) {
@@ -394,7 +483,7 @@ class Client {
   }
 
   sendSnap() {
-    console.log('Client: try something');
+    console.log('Client: sendSnap');
     this.receive_channel.send('client-snap');
   }
 
