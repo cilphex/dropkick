@@ -539,6 +539,8 @@ class App {
   }
 
   static get connection_config() {
+    // TODO (craig): is this necessary? returning null seems to work here.
+    // (At least, locally...)
     return {
       iceServers: [
         { url:'stun:stun.l.google.com:19302' }
