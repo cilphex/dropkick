@@ -4,6 +4,14 @@
     <title>dropkick</title>
     <link rel="icon" href="images/invader.png">
     <link rel="stylesheet" href="css/main.css">
+    <script>
+      // Force a redirect to https, since getUserMedia will not work if the
+      // domain isn't safe
+      // Force https when serving the website non-locally
+      if (!(window.location.host.startsWith("127.0.0.1")) && (window.location.protocol != "https:")) {
+        window.location.protocol = "https";
+      }
+    </script>
   </head>
   <body>
     <div id="container">
