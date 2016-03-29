@@ -33,7 +33,7 @@ body input {
   font-size: 0;
   line-height: 0;
   text-align: center;
-  background: url(/images/logo.png);
+  background: url(../images/logo.png);
   background-size: contain;
   background-position: center center;
   background-repeat: no-repeat;
