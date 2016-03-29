@@ -7,9 +7,9 @@
     <script>
       // Force a redirect to https, since getUserMedia will not work if the
       // domain isn't safe
-      var host = 'www.dropkick.xyz';
-      if (window.location.host == host && window.location.protocol != "https:") {
-        window.location.protocol = 'https';
+      // Force https when serving the website non-locally
+      if (!(window.location.host.startsWith("127.0.0.1")) && (window.location.protocol != "https:")) {
+        window.location.protocol = "https";
       }
     </script>
   </head>
