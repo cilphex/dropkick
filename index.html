@@ -6,8 +6,7 @@
     <link rel="stylesheet" href="css/main.css">
     <script>
       // Force a redirect to https, since getUserMedia will not work if the
-      // domain isn't safe
-      // Force https when serving the website non-locally
+      // domain isn't safe. Force https when serving the website non-locally
       if (!(window.location.host.startsWith("127.0.0.1")) && (window.location.protocol != "https:")) {
         window.location.protocol = "https";
       }
@@ -80,9 +79,7 @@
     </div>
 
     <!-- Scripts go at the bottom -->
-    <!-- <script src="js/adapter.js"></script> -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
-    <script src='https://cdn.firebase.com/js/client/2.2.1/firebase.js'></script>
-    <script src="js/main.js"></script>
+    <script src='https://cdn.firebase.com/js/client/2.4.2/firebase.js'></script>
+    <script src="js/build/main.min.js"></script>
   </body>
 </html>

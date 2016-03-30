@@ -1,0 +1,6 @@
+.DS_Store
+node_modules/
+js/babel/
+js/build/
+js/components/
+sourceMap.map
