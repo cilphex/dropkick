@@ -4,6 +4,10 @@ _"Like snapchat for files" — Somebody_
 
 --
 
+[View live version on Github Pages](https://cilphex.github.io/dropkick/)
+
+--
+
 **Overview**
 
 Dropkick lets you:
