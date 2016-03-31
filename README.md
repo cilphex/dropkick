@@ -49,3 +49,9 @@ grunt
 ```
 
 (I think)
+
+To rebuild html, css, and js changes from source as you write it:
+
+```
+grunt watch
+```

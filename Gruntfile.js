@@ -1,6 +1,8 @@
 module.exports = function(grunt) {
   // Project configuration
   grunt.initConfig({
+    pkg: grunt.file.readJSON('package.json'),
+
     // Clean dirs
     clean: [
       '*.html',
@@ -24,7 +26,8 @@ module.exports = function(grunt) {
       }
     },
 
-    // Merge files so index.html has fewer includes
+    // Merge files so index.html has fewer includes. The keys here are
+    // arbitrary.
     uglify: {
       my_target: {
         options: {
@@ -49,7 +52,7 @@ module.exports = function(grunt) {
       }
     },
 
-    // Now build a flat index.html file from
+    // Now build a flat index.html file from. The keys here are arbitrary.
     bake: {
       my_target: {
         options: {
@@ -60,14 +63,36 @@ module.exports = function(grunt) {
           'index.html': 'html/src/index.html'
         }
       }
+    },
+
+    // Recompile on src changes. The keys here are arbitrary.
+    watch: {
+      html_src: {
+        files: ['html/src/**/*.html'],
+        tasks: ['bake']
+      },
+      css_src: {
+        files: [],
+        tasks: []
+      },
+      js_src: {
+        files: ['js/src/**/*.js'],
+        tasks: ['babel']
+      }
     }
+  });
+
+  // Log when we do some watching.
+  grunt.event.on('watch', function(action, filepath, target) {
+    grunt.log.writeln(target + ': ' + filepath + ' has ' + action);
   });
 
   grunt.loadNpmTasks('grunt-contrib-clean');
   grunt.loadNpmTasks('grunt-babel');
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-bake');
+  grunt.loadNpmTasks('grunt-contrib-watch');
 
-  // Default tasks.
+  // Tasks!
   grunt.registerTask('default', ['clean', 'babel', 'uglify', 'bake']);
 };
