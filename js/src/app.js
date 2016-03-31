@@ -54,7 +54,7 @@ class App {
 
   static get url() {
     let l = location;
-    return l.protocol + '//' + l.hostname + (l.port ? ':' + l.port: '') + l.pathname;
+    return l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') + l.pathname;
   }
 }
 

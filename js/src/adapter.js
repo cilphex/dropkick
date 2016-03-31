@@ -1,2 +1,2 @@
 window.RTCPeerConnection = webkitRTCPeerConnection;
-navigator.getUserMedia = navigator.webkitGetUserMedia;
+window.navigator.getUserMedia = window.navigator.webkitGetUserMedia;

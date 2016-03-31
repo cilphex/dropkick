@@ -1,6 +1,15 @@
 .DS_Store
+
+# npm installs
 node_modules/
+
+# bower
+js/components/
+
+# grunt
 js/babel/
 js/build/
-js/components/
 sourceMap.map
+
+# Top-level index.html, etc.
+./*.html
