@@ -47,3 +47,5 @@ npm i
 bower install
 grunt
 ```
+
+(I think)
