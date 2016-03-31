@@ -6,6 +6,12 @@ _"Like snapchat for files"_ — Somebody
 
 --
 
+**Notice**
+
+Still in development, only the "happy path" works, and it only works in Chrome 49+.
+
+--
+
 **Overview**
 
 Dropkick lets you:
