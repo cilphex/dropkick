@@ -1,6 +1,6 @@
 <img src="images/logo.png" alt="Dropkick Logo" width="300"/>
 
-_"Like snapchat for files"_ — Somebody
+_"Like snapchat meets dropbox"_ — Somebody
 
 [View live version on Github Pages](https://cilphex.github.io/dropkick/)
 
@@ -8,7 +8,8 @@ _"Like snapchat for files"_ — Somebody
 
 **Notice**
 
-Still in development, only the "happy path" works, and it only works in Chrome 49+.
+Still in development, only the "happy path" works, and it only works in Chrome
+49+.
 
 --
 
