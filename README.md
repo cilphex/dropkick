@@ -1,6 +1,6 @@
 <img src="images/logo.png" alt="Dropkick Logo" width="300"/>
 
-_"Like snapchat for files" — Somebody_
+_"Like snapchat for files"_ — Somebody
 
 [View live version on Github Pages](https://cilphex.github.io/dropkick/)
 
