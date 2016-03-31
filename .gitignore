@@ -9,7 +9,9 @@ js/components/
 # grunt
 js/babel/
 js/build/
+css/build/
 sourceMap.map
+.sass-cache/
 
 # Top-level index.html, etc.
 /*.html

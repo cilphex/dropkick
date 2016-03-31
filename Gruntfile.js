@@ -7,7 +7,8 @@ module.exports = function(grunt) {
     clean: [
       '*.html',
       'js/babel',
-      'js/build'
+      'js/build',
+      'css/build'
     ],
 
     // Convert from es6 to es5
@@ -29,7 +30,7 @@ module.exports = function(grunt) {
     // Merge files so index.html has fewer includes. The keys here are
     // arbitrary.
     uglify: {
-      my_target: {
+      all: {
         options: {
           mangle: false,
           sourceMap: true,
@@ -52,9 +53,21 @@ module.exports = function(grunt) {
       }
     },
 
+    sass: {
+      all: {
+        options: {
+          style: 'expanded'
+        },
+        files: {
+          // dest: source
+          'css/build/main.css': 'css/src/main.scss'
+        }
+      }
+    },
+
     // Now build a flat index.html file from. The keys here are arbitrary.
     bake: {
-      my_target: {
+      all: {
         options: {
           // None
         },
@@ -67,13 +80,19 @@ module.exports = function(grunt) {
 
     // Recompile on src changes. The keys here are arbitrary.
     watch: {
+      config_files: {
+        files: ['Gruntfile.js'],
+        options: {
+          reload: true
+        }
+      },
       html_src: {
         files: ['html/src/**/*.html'],
         tasks: ['bake']
       },
       css_src: {
-        files: [],
-        tasks: []
+        files: ['css/src/**/*.scss'],
+        tasks: ['sass']
       },
       js_src: {
         files: ['js/src/**/*.js'],
@@ -82,17 +101,13 @@ module.exports = function(grunt) {
     }
   });
 
-  // Log when we do some watching.
-  grunt.event.on('watch', function(action, filepath, target) {
-    grunt.log.writeln(target + ': ' + filepath + ' has ' + action);
-  });
-
-  grunt.loadNpmTasks('grunt-contrib-clean');
-  grunt.loadNpmTasks('grunt-babel');
-  grunt.loadNpmTasks('grunt-contrib-uglify');
-  grunt.loadNpmTasks('grunt-bake');
-  grunt.loadNpmTasks('grunt-contrib-watch');
+  grunt.loadNpmTasks('grunt-contrib-clean');   // clear
+  grunt.loadNpmTasks('grunt-babel');           // js
+  grunt.loadNpmTasks('grunt-contrib-uglify');  // js
+  grunt.loadNpmTasks('grunt-contrib-sass');    // css
+  grunt.loadNpmTasks('grunt-bake');            // html
+  grunt.loadNpmTasks('grunt-contrib-watch');   // watch
 
   // Tasks!
-  grunt.registerTask('default', ['clean', 'babel', 'uglify', 'bake']);
+  grunt.registerTask('default', ['clean', 'babel', 'uglify', 'sass', 'bake']);
 };

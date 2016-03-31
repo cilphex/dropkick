@@ -51,6 +51,12 @@ grunt
 
 (I think)
 
+If the sass step fails, you may have to switch your ruby version:
+
+```
+rbenv global 2.3.0
+```
+
 To rebuild html, css, and js changes from source as you write it:
 
 ```

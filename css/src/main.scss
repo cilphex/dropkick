@@ -1,0 +1,166 @@
+html, body {
+  margin: 0;
+  padding: 0;
+}
+
+body,
+body input {
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+}
+
+/*
+  How to vertically align text:
+  --
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+*/
+
+#container {
+  margin: 50px auto;
+  width: 50%;
+
+  * {
+    box-sizing: border-box;
+  }
+
+  h1 {
+    height: 50px;
+    font-size: 0;
+    line-height: 0;
+    text-align: center;
+    background-image: url(/images/logo.png);
+    background-size: contain;
+    background-position: center center;
+    background-repeat: no-repeat;
+
+    span {
+      color: #888;
+    }
+  }
+
+  hr {
+    margin: 30px auto;
+    width: 50%;
+    border: none;
+    border-bottom: 1px solid #eee;
+  }
+
+  .text-center {
+    text-align: center;
+  }
+
+  a.btn {
+    display: inline-block;
+    width: 150px;
+    font-weight: bold;
+    line-height: 50px;
+    text-align: center;
+    text-decoration: none;
+    color: #000;
+    border: 1px solid #000;
+    border-radius: 3px;
+
+    &:hover,
+    &:active,
+    &:focus {
+      color: #fff;
+      background: #000;
+    }
+    &:active {
+      background: #555;
+    }
+  }
+
+  /* ======================================================================= */
+  /* Server */
+
+  p.drop-a-file {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+    margin: 50px auto;
+    width: 200px;
+    height: 200px;
+    max-width: 100%;
+    background: #fff;
+    border: 1px solid #000;
+    border-radius: 1000px;
+    transition: width 1.0s, height 1.0s;
+    transition-delay: 0.25s;
+    transition-timing-function: ease-in-out;
+  }
+}
+
+body.drop-hover #container p.drop-a-file {
+  border-width: 2px;
+}
+body.dropped #container p.drop-a-file {
+  width: 275px;
+  height: 50px;
+  color: #fff;
+  background: #000;
+}
+
+#container {
+  div.share-url {
+    transition: transform 1.0s, opacity 1.0s;
+    transition-delay: 1.5s;
+    transition-timing-function: ease-in-out;
+
+    &.hidden {
+      transform: translateY(-10px);
+      opacity: 0;
+    }
+
+    p {
+      text-align: center;
+    }
+
+    input {
+      display: block;
+      box-sizing: border-box;
+      margin: 0 auto;
+      padding: 0 20px;
+      width: 275px;
+      line-height: 48px; /* to compensate for border */
+      text-align: center;
+      border: 1px solid #000;
+      border-radius: 100px;
+      outline: none;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
+  }
+
+  /* ======================================================================= */
+  /* Shared */
+
+  video.selfie {
+    display: block;
+    margin: auto;
+    width: 200px;
+    height: 200px;
+    border: 1px solid #000;
+    border-radius: 1000px;
+    object-fit: cover;
+    transition: border 0.25s;
+    transition-timing-function: ease-out;
+  }
+
+  video.selfie.paused {
+    border: 5px solid #00AAFF;
+  }
+
+  /* ======================================================================= */
+  /* Client */
+
+  div.id-required {
+    margin: 50px 0 20px;
+  }
+}
