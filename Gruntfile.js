@@ -68,6 +68,6 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-bake');
 
-  // Default task(s).
+  // Default tasks.
   grunt.registerTask('default', ['clean', 'babel', 'uglify', 'bake']);
 };
