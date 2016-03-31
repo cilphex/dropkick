@@ -10,14 +10,8 @@ body input {
   -webkit-font-smoothing: antialiased;
 }
 
-/*
-  How to vertically align text:
-  --
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  text-align: center;
-*/
+@import "components/index";
+@import "views/index";
 
 #container {
   margin: 50px auto;
@@ -53,94 +47,6 @@ body input {
     text-align: center;
   }
 
-  a.btn {
-    display: inline-block;
-    width: 150px;
-    font-weight: bold;
-    line-height: 50px;
-    text-align: center;
-    text-decoration: none;
-    color: #000;
-    border: 1px solid #000;
-    border-radius: 3px;
-
-    &:hover,
-    &:active,
-    &:focus {
-      color: #fff;
-      background: #000;
-    }
-    &:active {
-      background: #555;
-    }
-  }
-
-  /* ======================================================================= */
-  /* Server */
-
-  p.drop-a-file {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    text-align: center;
-    margin: 50px auto;
-    width: 200px;
-    height: 200px;
-    max-width: 100%;
-    background: #fff;
-    border: 1px solid #000;
-    border-radius: 1000px;
-    transition: width 1.0s, height 1.0s;
-    transition-delay: 0.25s;
-    transition-timing-function: ease-in-out;
-  }
-}
-
-body.drop-hover #container p.drop-a-file {
-  border-width: 2px;
-}
-body.dropped #container p.drop-a-file {
-  width: 275px;
-  height: 50px;
-  color: #fff;
-  background: #000;
-}
-
-#container {
-  div.share-url {
-    transition: transform 1.0s, opacity 1.0s;
-    transition-delay: 1.5s;
-    transition-timing-function: ease-in-out;
-
-    &.hidden {
-      transform: translateY(-10px);
-      opacity: 0;
-    }
-
-    p {
-      text-align: center;
-    }
-
-    input {
-      display: block;
-      box-sizing: border-box;
-      margin: 0 auto;
-      padding: 0 20px;
-      width: 275px;
-      line-height: 48px; /* to compensate for border */
-      text-align: center;
-      border: 1px solid #000;
-      border-radius: 100px;
-      outline: none;
-      white-space: nowrap;
-      text-overflow: ellipsis;
-      overflow: hidden;
-    }
-  }
-
-  /* ======================================================================= */
-  /* Shared */
-
   video.selfie {
     display: block;
     margin: auto;
@@ -155,12 +61,5 @@ body.dropped #container p.drop-a-file {
 
   video.selfie.paused {
     border: 5px solid #00AAFF;
-  }
-
-  /* ======================================================================= */
-  /* Client */
-
-  div.id-required {
-    margin: 50px 0 20px;
   }
 }

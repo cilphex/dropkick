@@ -13,10 +13,10 @@ module.exports = function(grunt) {
 
     // Convert from es6 to es5
     babel: {
-      options: {
-        presets: ['es2015']
-      },
-      dist: {
+      all: {
+        options: {
+          presets: ['es2015']
+        },
         files: {
           // dest: source
           'js/babel/adapter.js': 'js/src/adapter.js',
@@ -96,7 +96,7 @@ module.exports = function(grunt) {
       },
       js_src: {
         files: ['js/src/**/*.js'],
-        tasks: ['babel']
+        tasks: ['babel', 'uglify']
       }
     }
   });

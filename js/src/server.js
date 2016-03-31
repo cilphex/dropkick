@@ -6,7 +6,7 @@ class ServerUI {
     this.server = server;
     this.hover_counter = 0;
     this.setupListeners();
-    $('.app-server').show();
+    $('.server-view').show();
   }
 
   fileLoaded(e) {
