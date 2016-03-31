@@ -1,6 +1,6 @@
-# dropkick
+<img src="images/logo.png" alt="Dropkick Logo" width="300"/>
 
-Dropkick lets you:
+Lets you:
 - Send a single file
 - Only once
 - Securely
