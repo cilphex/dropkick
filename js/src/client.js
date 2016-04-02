@@ -89,7 +89,7 @@ class Client {
     this.local_connection.onaddstream = (e) => {
       console.log('Client: onaddstream', e.stream);
       this.remote_stream = e.stream;
-    }
+    };
     this.local_connection.addStream(this.stream);
     this.local_connection.setRemoteDescription(offer_desc);
     this.local_connection.createAnswer(this.answerCreated.bind(this), this.createSessionDescriptionError.bind(this));
@@ -117,11 +117,11 @@ class Client {
     let candidate = new RTCIceCandidate(candidate_json);
     this.local_connection.addIceCandidate(candidate,
       this.addIceCandidateSuccess,
-      this.addIceCandidateError)
+      this.addIceCandidateError);
   }
 
   addIceCandidateSuccess() {
-    console.log('Client: addIceCandidateSuccess')
+    console.log('Client: addIceCandidateSuccess');
   }
 
   addIceCandidateError(err) {
@@ -132,7 +132,7 @@ class Client {
     console.log('Client: got remote data channel', e);
     this.receive_channel = e.channel;
     this.receive_channel.binaryType = 'arraybuffer';
-    this.receive_channel.onmessage = this.receiveChannelMessage.bind(this)
+    this.receive_channel.onmessage = this.receiveChannelMessage.bind(this);
     this.receive_channel.onopen = this.receiveChannelStateChange.bind(this);
     this.receive_channel.onclose = this.receiveChannelStateChange.bind(this);
   }
@@ -180,10 +180,10 @@ class Client {
     this.receivedBuffer.push(e.data);
     this.receivedSize += e.data.byteLength;
 
-    if (this.receivedSize == this.file_size) {
+    if (this.receivedSize === this.file_size) {
       console.log('Client: done receiving file');
 
-      var received = new window.Blob(this.receivedBuffer);
+      let received = new window.Blob(this.receivedBuffer);
       this.receivedBuffer = [];
 
       let anchor = document.querySelector('a.download');

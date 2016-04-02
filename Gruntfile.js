@@ -11,6 +11,21 @@ module.exports = function(grunt) {
       'css/build'
     ],
 
+    jshint: {
+      options: {
+        esversion: 6,
+        eqeqeq: true,
+        freeze: true,
+        latedef: true,
+        nocomma: true,
+        nonbsp: true,
+        // unused: true
+        // strict: 'global',
+        varstmt: true
+      },
+      src: ['js/src/**/*.js']
+    },
+
     // Convert from es6 to es5
     babel: {
       all: {
@@ -102,6 +117,7 @@ module.exports = function(grunt) {
   });
 
   grunt.loadNpmTasks('grunt-contrib-clean');   // clear
+  grunt.loadNpmTasks('grunt-contrib-jshint');  // lint
   grunt.loadNpmTasks('grunt-babel');           // js
   grunt.loadNpmTasks('grunt-contrib-uglify');  // js
   grunt.loadNpmTasks('grunt-contrib-sass');    // css
@@ -109,5 +125,12 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-watch');   // watch
 
   // Tasks!
-  grunt.registerTask('default', ['clean', 'babel', 'uglify', 'sass', 'bake']);
+  grunt.registerTask('default', [
+    'clean',
+    'jshint',
+    'babel',
+    'uglify',
+    'sass',
+    'bake'
+  ]);
 };

@@ -156,7 +156,7 @@ class Server {
       console.log('Server: onaddstream', e.stream);
       this.remote_stream = e.stream;
       this.ui.setStream(this.remote_stream);
-    }
+    };
     this.local_connection.addStream(this.stream);
 
     this.send_channel = this.local_connection.createDataChannel('my-test-channel', {});
@@ -218,11 +218,11 @@ class Server {
     let candidate = new RTCIceCandidate(candidate_json);
     this.local_connection.addIceCandidate(candidate,
       this.addIceCandidateSuccess,
-      this.addIceCandidateError)
+      this.addIceCandidateError);
   }
 
   addIceCandidateSuccess() {
-    console.log('Server: addIceCandidateSuccess')
+    console.log('Server: addIceCandidateSuccess');
   }
 
   addIceCandidateError(err) {
@@ -238,16 +238,16 @@ class Server {
   }
 
   sendFile() {
-    var file = this.file;
-    var send_channel = this.send_channel;
+    let file = this.file;
+    let send_channel = this.send_channel;
 
     console.log('Server: sendFile', file);
     send_channel.send(file.name);
     send_channel.send(file.size);
 
-    var chunkSize = 16384;
-    var sliceFile = function(offset) {
-      var reader = new window.FileReader();
+    let chunkSize = 16384;
+    let sliceFile = function(offset) {
+      let reader = new window.FileReader();
       reader.onload = (function() {
         return function(e) {
           send_channel.send(e.target.result);
@@ -255,17 +255,17 @@ class Server {
             window.setTimeout(sliceFile, 0, offset + chunkSize);
           }
           // sendProgress line here
-        }
+        };
       })(file);
-      var slice = file.slice(offset, offset + chunkSize);
+      let slice = file.slice(offset, offset + chunkSize);
       reader.readAsArrayBuffer(slice);
-    }
+    };
     sliceFile(0);
   }
 
   get uuid() {
     this.generated_uuid = this.generated_uuid || 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-      var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
+      let r = Math.random()*16|0, v = c === 'x' ? r : (r&0x3|0x8);
       return v.toString(16);
     });
     return this.generated_uuid;
