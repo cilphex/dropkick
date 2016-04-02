@@ -11,6 +11,7 @@ module.exports = function(grunt) {
       'css/build'
     ],
 
+    // Do some es6 linting
     jshint: {
       options: {
         esversion: 6,

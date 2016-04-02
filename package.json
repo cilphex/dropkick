@@ -11,6 +11,11 @@
     "grunt-contrib-sass": "^1.0.0",
     "grunt-contrib-uglify": "~0.5.0",
     "grunt-contrib-watch": "^1.0.0",
-    "rework-npm": "^1.0.0"
+    "http-server": "^0.9.0",
+    "mocha": "^2.4.5",
+    "zombie": "^4.2.1"
+  },
+  "scripts": {
+    "test": "mocha test/index.js"
   }
 }
