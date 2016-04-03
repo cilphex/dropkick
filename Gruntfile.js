@@ -108,7 +108,10 @@ module.exports = function(grunt) {
         tasks: ['sass']
       },
       js_src: {
-        files: ['js/src/**/*.js'],
+        files: [
+          'js/src/**/*.js',
+          'js/src/**/*.jsx'
+        ],
         tasks: ['babel', 'uglify']
       }
     }
