@@ -7,10 +7,10 @@
     "grunt-babel": "^6.0.0",
     "grunt-bake": "^1.6.3",
     "grunt-contrib-clean": "^1.0.0",
-    "grunt-contrib-jshint": "^1.0.0",
     "grunt-contrib-sass": "^1.0.0",
     "grunt-contrib-uglify": "~0.5.0",
     "grunt-contrib-watch": "^1.0.0",
+    "grunt-eslint": "^18.0.0",
     "http-server": "^0.9.0",
     "mocha": "^2.4.5",
     "zombie": "^4.2.1"

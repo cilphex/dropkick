@@ -11,20 +11,14 @@ module.exports = function(grunt) {
       'css/build'
     ],
 
-    // Do some es6 linting
-    jshint: {
+    eslint: {
       options: {
-        esversion: 6,
-        eqeqeq: true,
-        freeze: true,
-        latedef: true,
-        nocomma: true,
-        nonbsp: true,
-        // unused: true
-        // strict: 'global',
-        varstmt: true
+        configFile: '.eslintrc'
       },
-      src: ['js/src/**/*.js']
+      target: [
+        'js/src/**/*.js', // src
+        'test/**/*.js'    // test
+      ]
     },
 
     // Convert from es6 to es5
@@ -118,7 +112,7 @@ module.exports = function(grunt) {
   });
 
   grunt.loadNpmTasks('grunt-contrib-clean');   // clear
-  grunt.loadNpmTasks('grunt-contrib-jshint');  // lint
+  grunt.loadNpmTasks('grunt-eslint');          // lint
   grunt.loadNpmTasks('grunt-babel');           // js
   grunt.loadNpmTasks('grunt-contrib-uglify');  // js
   grunt.loadNpmTasks('grunt-contrib-sass');    // css
@@ -128,7 +122,7 @@ module.exports = function(grunt) {
   // Tasks!
   grunt.registerTask('default', [
     'clean',
-    'jshint',
+    'eslint',
     'babel',
     'uglify',
     'sass',

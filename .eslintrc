@@ -1,0 +1,30 @@
+{
+  "parserOptions": {
+    "ecmaVersion": 6,
+    "ecmaFeatures": {
+      # "jsx": true
+    }
+  },
+  "env": {
+    "browser": true,
+    "node": true,
+    "mocha": true,
+    "jquery": true
+  },
+  "plugins": [
+
+  ],
+  # Recommended rules
+  "extends": "eslint:recommended",
+  # 0 = off, 1 = warn, 2 = error
+  "rules": {
+    "eqeqeq": 2,
+    "no-console": 0,
+    "no-undef": 0,         # Files are concated
+    "no-unused-vars": 0,   # Files are concated
+    # "no-unused-vars": [2, {
+    #   vars: 'local', # checks only that locally-declared variables are used
+    #   args: 'none' # Do not check arguments
+    # }]
+  }
+}
