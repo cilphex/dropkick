@@ -16,8 +16,9 @@ module.exports = function(grunt) {
         configFile: '.eslintrc'
       },
       target: [
-        'js/src/**/*.js', // src
-        'test/**/*.js'    // test
+        'js/src/**/*.js',  // src
+        'js/src/**/*.jsx', // src
+        'test/**/*.js'     // test
       ]
     },
 
@@ -25,14 +26,15 @@ module.exports = function(grunt) {
     babel: {
       all: {
         options: {
-          presets: ['es2015']
+          plugins: ['transform-react-jsx'],
+          presets: ['es2015', 'react']
         },
         files: {
           // dest: source
           'js/babel/adapter.js': 'js/src/adapter.js',
           'js/babel/server.js': 'js/src/server.js',
           'js/babel/client.js': 'js/src/client.js',
-          'js/babel/app.js': 'js/src/app.js'
+          'js/babel/app.js': 'js/src/app.js',
         }
       }
     },
@@ -54,6 +56,7 @@ module.exports = function(grunt) {
           ],
           'js/build/main.min.js': [
             'js/components/jquery/dist/jquery.js',
+            'js/components/react/react.js',
             'js/babel/adapter.js',
             'js/babel/server.js',
             'js/babel/client.js',
