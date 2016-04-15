@@ -118,7 +118,7 @@ module.exports = function(grunt) {
           'js/src/**/*.js',
           'js/src/**/*.jsx'
         ],
-        tasks: ['babel', 'uglify']
+        tasks: ['browserify', 'uglify']
       }
     }
   });
