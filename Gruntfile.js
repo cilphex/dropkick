@@ -7,6 +7,7 @@ module.exports = function(grunt) {
     clean: [
       '*.html',
       'js/babel',
+      'js/browserify',
       'js/build',
       'css/build'
     ],
@@ -22,20 +23,23 @@ module.exports = function(grunt) {
       ]
     },
 
-    // Convert from es6 to es5
-    babel: {
-      all: {
+    browserify: {
+      dist: {
         options: {
-          plugins: ['transform-react-jsx'],
-          presets: ['es2015', 'react']
+          browserifyOptions: {
+            debug: true
+          },
+          transform: [
+            ['babelify', {
+              presets: ['es2015', 'react']
+            }]
+          ]
         },
-        files: {
-          // dest: source
-          'js/babel/adapter.js': 'js/src/adapter.js',
-          'js/babel/server.js': 'js/src/server.js',
-          'js/babel/client.js': 'js/src/client.js',
-          'js/babel/app.js': 'js/src/app.js',
-        }
+        src: [
+          'js/src/**/*.js',
+          'js/src/**/*.jsx'
+        ],
+        dest: 'js/browserify/main.js'
       }
     },
 
@@ -57,10 +61,12 @@ module.exports = function(grunt) {
           'js/build/main.min.js': [
             'js/components/jquery/dist/jquery.js',
             'js/components/react/react.js',
-            'js/babel/adapter.js',
-            'js/babel/server.js',
-            'js/babel/client.js',
-            'js/babel/app.js'
+            'js/components/react/react-dom.js',
+            // 'js/babel/adapter.js',
+            // 'js/babel/server.js',
+            // 'js/babel/client.js',
+            // 'js/babel/app.js'
+            'js/browserify/main.js'
           ]
         }
       }
@@ -119,7 +125,7 @@ module.exports = function(grunt) {
 
   grunt.loadNpmTasks('grunt-contrib-clean');   // clear
   grunt.loadNpmTasks('grunt-eslint');          // lint
-  grunt.loadNpmTasks('grunt-babel');           // js
+  grunt.loadNpmTasks('grunt-browserify');      // use modules and require
   grunt.loadNpmTasks('grunt-contrib-uglify');  // js
   grunt.loadNpmTasks('grunt-contrib-sass');    // css
   grunt.loadNpmTasks('grunt-bake');            // html
@@ -129,7 +135,7 @@ module.exports = function(grunt) {
   grunt.registerTask('default', [
     'clean',
     'eslint',
-    'babel',
+    'browserify',
     'uglify',
     'sass',
     'bake'

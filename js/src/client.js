@@ -1,51 +1,19 @@
-// ============================================================================
-// Client UI
-
-class ClientUI {
-  constructor(client, stream) {
-    this.client = client;
-    this.stream = stream;
-    this.setupListeners();
-    this.setupVideo();
-    // this.setupSelfie(); // has to be called from Client after stuff is loaded
-    $('.app-client').show();
-  }
-
-  setupListeners() {
-    // ideally this would not be allowed until the video.loadedmetadata callback
-    $(document).on('click', '.snap-photo', this.snapPhoto.bind(this));
-  }
-
-  setupVideo() {
-    this.video = window.video = document.querySelector('.local-selfie');
-    this.video.src = window.URL.createObjectURL(this.stream);
-  }
-
-  snapPhoto(e) {
-    this.video.pause();
-    $(this.video).addClass('paused');
-    $('.snap-button').hide();
-    $('.waiting-for-decision').show();
-    this.client.sendSnap();
-  }
-}
-
-// ============================================================================
-// Client
+let Config = require('./config');
+let ClientUI = require('./client_ui');
 
 class Client {
-  constructor(connection_uuid) {
+  constructor(app, connection_uuid) {
     console.log('Client: creating');
+    this.app = app;
     this.connection_uuid = connection_uuid;
     this.receivedBuffer = [];
     this.receivedSize = 0;
     this.setupUuidStoreObserver();
     this.getLocalStream();
-    // this.getRemoteOffer(); // moved down
   }
 
   setupUuidStoreObserver() {
-    this.uuid_store.child(this.connection_uuid).on('value', this.uuidStoreUpdated.bind(this));
+    Config.uuid_store.child(this.connection_uuid).on('value', this.uuidStoreUpdated.bind(this));
   }
 
   uuidStoreUpdated(snapshot) {
@@ -78,12 +46,12 @@ class Client {
   }
 
   getRemoteOffer() {
-    this.uuid_store.child(this.connection_uuid).once('value', this.uuidStoreUpdated.bind(this));
+    Config.uuid_store.child(this.connection_uuid).once('value', this.uuidStoreUpdated.bind(this));
   }
 
   gotRemoteOffer(offer_desc_json) {
     let offer_desc = new RTCSessionDescription(offer_desc_json);
-    this.local_connection = new RTCPeerConnection(App.connection_config);
+    this.local_connection = new RTCPeerConnection(Config.connection);
     this.local_connection.ondatachannel = this.gotRemoteDataChannel.bind(this);
     this.local_connection.onicecandidate = this.gotLocalIceCandidate.bind(this);
     this.local_connection.onaddstream = (e) => {
@@ -100,7 +68,7 @@ class Client {
     this.local_connection.setLocalDescription(answer_desc);
     let desc = this.local_connection.localDescription.toJSON();
     if (desc.type === 'answer') {
-      this.uuid_store.child(this.connection_uuid).child('client_desc').set(desc);
+      Config.uuid_store.child(this.connection_uuid).child('client_desc').set(desc);
     }
   }
 
@@ -108,7 +76,7 @@ class Client {
     console.log('Client: gotLocalIceCandidate');
     if (e.candidate) {
       let candidate = e.candidate.toJSON();
-      this.uuid_store.child(this.connection_uuid).child('client_candidate').set(candidate);
+      Config.uuid_store.child(this.connection_uuid).child('client_candidate').set(candidate);
     }
   }
 
@@ -205,14 +173,6 @@ class Client {
     console.log('Client: sendSnap');
     this.receive_channel.send('client-snap');
   }
-
-  // addStream(stream) {
-  //   console.log('Client: addStream', stream);
-  //   this.local_connection.onaddstream({stream: stream});
-  //   this.local_connection.addStream(stream);
-  // }
-
-  get uuid_store() {
-    return App.uuid_store;
-  }
 }
+
+module.exports = Client;

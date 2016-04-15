@@ -1,5 +1,9 @@
-window.RTCPeerConnection = window.RTCPeerConnection ||
-  window.webkitRTCPeerConnection;
+let adapt = () => {
+  window.RTCPeerConnection = window.RTCPeerConnection ||
+    window.webkitRTCPeerConnection;
 
-window.navigator.getUserMedia = window.navigator.getUserMedia ||
-  window.navigator.webkitGetUserMedia;
+  window.navigator.getUserMedia = window.navigator.getUserMedia ||
+    window.navigator.webkitGetUserMedia;
+}
+
+module.exports.adapt = adapt;
