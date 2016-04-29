@@ -1,0 +1,27 @@
+<link rel="import" href="server-view.html">
+<link rel="import" href="client-view.html">
+<link rel="import" href="empty-view.html">
+
+<dom-module id="app-view">
+  <template>
+    <p>Polymer app-view! The view is: [[view]]</p>
+    <server-view hidden="[[ isHidden(view, 'server') ]]"></server-view>
+    <client-view hidden="[[ isHidden(view, 'client') ]]"></client-view>
+    <empty-view hidden="[[ isHidden(view, 'empty') ]]"></empty-view>
+  </template>
+
+  <script>
+    var app = Polymer({
+      is: "app-view",
+      properties: {
+        view: {
+          type: String,
+          value: null
+        }
+      },
+      isHidden: function(view, _view) {
+        return view != _view;
+      }
+    });
+  </script>
+</dom-module>

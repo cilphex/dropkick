@@ -12,7 +12,7 @@
     "jquery": true
   },
   "plugins": [
-    
+
   ],
   # Recommended rules
   "extends": "eslint:recommended",

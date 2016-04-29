@@ -1,0 +1,17 @@
+<dom-module id="server-view">
+  <template>
+    <p>Polymer server-view! {{greeting}}</p>
+  </template>
+
+  <script>
+    Polymer({
+      is: "server-view",
+      test: function() {
+        console.log('testing!');
+      },
+      ready: function() {
+        this.greeting = "hey there!";
+      }
+    });
+  </script>
+</dom-module>

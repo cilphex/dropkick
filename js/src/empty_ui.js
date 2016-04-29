@@ -1,17 +1,17 @@
-let EmptyUITemplate = require('./templates/empty');
-
-let EmptyUIELement = React.createClass({
-  render: function() {
-    return EmptyUITemplate;
-  }
-});
+// let EmptyUITemplate = require('./templates/empty');
+//
+// class EmptyUIELement extends React.Component {
+//   render() {
+//     return EmptyUITemplate;
+//   }
+// }
 
 class EmptyUI {
   constructor() {
-    ReactDOM.render(
-      <EmptyUIELement/>,
-      document.getElementById('view')
-    );
+    // ReactDOM.render(
+    //   <EmptyUIELement/>,
+    //   document.getElementById('view')
+    // );
   }
 }
 

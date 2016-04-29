@@ -4,6 +4,8 @@
     <title>dropkick</title>
     <link rel="icon" href="images/invader.png">
     <link rel="stylesheet" href="css/build/main.css">
+    <link rel="import" href="../../js/components/polymer/polymer.html">
+    <link rel="import" href="html/src/components/app-view.html">
     <script>
       // Force a redirect to https, since getUserMedia will not work if the
       // domain isn't safe. Force https when serving the website non-locally
@@ -19,6 +21,8 @@
            sendChannel.readyState == 'open' -->
 
       <div id="view"></div>
+      <app-view></app-view>
+
       <!--(bake _server_view.html)-->
       <!--(bake _client_view.html)-->
     </div>
