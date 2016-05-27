@@ -1,0 +1,243 @@
+<link rel="import" href="config.html">
+
+<dom-module id="server-view">
+  <template>
+    <style>
+      p.drop-a-file {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        text-align: center;
+        margin: 50px auto;
+        width: 200px;
+        height: 200px;
+        max-width: 100%;
+        font-size: 20px;
+        background: #f6f6f6;
+        border-radius: 100px;
+        box-shadow: 0 0px 5px rgba(0,0,0,0.15) inset;
+        transition: width 1.0s, height 1.0s, border-radius 1.0s;
+        transition-delay: 0.25s;
+        transition-timing-function: ease-in-out;
+
+        /*body.drop-hover & {
+          background: #CFF7E3;
+        }
+        body.dropped & {
+          width: 275px;
+          height: 50px;
+          color: #fff;
+          background: #000;
+          border: none;
+          border-radius: 6px;
+          box-shadow: none;
+        }*/
+      }
+
+      div.share-url {
+        transition: transform 1.0s, opacity 1.0s;
+        transition-delay: 1.5s;
+        transition-timing-function: ease-in-out;
+      }
+      div.share-url.hidden {
+        transform: translateY(-10px);
+        opacity: 0;
+      }
+      div.share-url p {
+        text-align: center;
+      }
+      div.share-url input {
+        display: block;
+        box-sizing: border-box;
+        margin: 0 auto;
+        padding: 0 20px;
+        width: 275px;
+        line-height: 48px; /* to compensate for border */
+        text-align: center;
+        border: 2px solid #000;
+        border-radius: 6px;
+        outline: none;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
+      }
+    </style>
+
+    <p class="drop-a-file">Drop a file</p>
+
+    <div class="share-url" hidden="[[ isViewHidden(view, 'server') ]]">
+      <p>Share this url:</p>
+      <input type="text" class="share-url" spellcheck="false" value="Dummy value here">
+    </div>
+
+    <div class="connected-and-waiting text-center" hidden="[[ isViewHidden(view, 'server') ]]">
+      <p>Connected, waiting for a selfie&hellip;</p>
+    </div>
+
+    <div class="pending-approval text-center" hidden="[[ isViewHidden(view, 'server') ]]">
+      <video autoplay class="selfie remote-selfie"></video>
+      <p>What's the verdict?</p>
+      <a href="#" class="btn reject-user">Reject</a>
+      <a href="#" class="btn approve-user">Approve</a>
+    </div>
+
+    <div class="sending-to-user text-center" hidden="[[ isViewHidden(view, 'server') ]]">
+      <p>Sending file&hellip;</p>
+    </div>
+
+    <div class="sent-to-user text-center" hidden="[[ isViewHidden(view, 'server') ]]">
+      <p>File sent!</p>
+    </div>
+  </template>
+
+  <script>
+    class Server {
+      constructor() {
+        this.setupUuidStoreObserver();
+        this.getMediaStream();
+      }
+
+      setupUuidStoreObserver() {
+        Config.uuid_store.child(this.uuid).on('value', this.uuidStoreUpdated.bind(this));
+      }
+
+      uuidStoreUpdated(snapshot) {
+
+      }
+
+      getMediaStream() {
+        let constraints = { video: true };
+        navigator.getUserMedia(constraints,
+          this.getMediaStreamSuccess.bind(this),
+          this.getMediaStreamError.bind(this));
+      }
+
+      getMediaStreamSuccess(stream) {
+        console.log('got media stream');
+        this.media_stream = stream;
+        this.setupConnection();
+      }
+
+      getMediaStreamError(err) {
+        console.log('media stream error', err);
+      }
+
+      setupConnection() {
+        this.connection = new RTCPeerConnection(Config.connection);
+        this.connection.onicecandidate = this.gotLocalIceCandidate.bind(this);
+        this.connection.onaddstream = this.gotRemoteStream.bind(this);
+        this.connection.addStream(this.media_stream);
+
+        this.channel = this.connection.createDataChannel('my-test-channel', {});
+        this.channel.binaryType = 'arraybuffer';
+        this.channel.onopen = this.channelStateChange.bind(this);
+        this.channel.onclose = this.channelStateChange.bind(this);
+        this.channel.onerror = this.channelError.bind(this);
+        this.channel.onmessage = this.channelMessage.bind(this);
+
+        this.connection.createOffer(
+          this.gotLocalDescription.bind(this),
+          this.createSessionDescriptionError.bind(this)
+        );
+      }
+
+      gotLocalIceCandidate(e) {
+        if (e.candidate) {
+          let candidate = e.candidate.toJSON();
+          Config.uuid_store.child(this.uuid).child('server_candidate').set(candidate);
+        }
+      }
+
+      gotRemoteStream(e) {
+        this.remote_stream = e.stream;
+      }
+
+      channelStateChange() {
+        if (this.channel.readyState === 'open') {
+          console.log('waiting...');
+        }
+      }
+
+      channelError(err) {
+        console.log('channelError', err);
+      }
+
+      channelMessage(e) {
+        switch (e.data) {
+          case 'client-snap':
+            console.log('client-snap message');
+            break;
+          case 'done-receiving':
+            console.log('done-receiving message');
+            break;
+        }
+      }
+
+      gotLocalDescription(desc) {
+        this.connection.setLocalDescription(desc);
+        console.log('desc', desc);
+        console.log('desc.toJSON()', desc.toJSON());
+        throw 'what is desc or desc.toJSON() here?';
+        Config.uuid_store.child(this.uuid).child('server_desc').set(desc);
+      }
+
+      createSessionDescriptionError(err) {
+        console.log('session desc error', err);
+      }
+
+      get uuid() {
+        this.generated_uuid = this.generated_uuid || 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+          let r = Math.random()*16|0, v = c === 'x' ? r : (r&0x3|0x8);
+          return v.toString(16);
+        });
+        return this.generated_uuid;
+      }
+    }
+
+    class ServerView {
+      beforeRegister() {
+        this.is = 'server-view';
+        this.listeners = {
+          'dragenter': 'dragEnter',
+          'dragleave': 'dragLeave',
+          'dragover': 'dragOver',
+          'drop': 'dragDrop'
+        };
+      }
+
+      created() {
+        this.server = new Server();
+      }
+
+      ready() {
+
+      }
+
+      getView() {
+
+      }
+
+      isViewHidden(view, _view) {
+        return view != _view;
+      }
+
+      dragEnter(e) {
+        console.log('drag enter');
+      }
+
+      dragLeave(e) {
+        console.log('drag leave');
+      }
+
+      dragOver(e) {
+        console.log('drag over');
+      }
+
+      dragDrop(e) {
+        console.log('drag drop');
+      }
+    }
+
+    Polymer(ServerView);
+  </script>
+</dom-module>

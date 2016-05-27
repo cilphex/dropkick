@@ -1,0 +1,20 @@
+<script>
+  let Config = (() => {
+    config = {};
+
+    config.connection = {
+      iceServers: [
+        { url: 'stun:stun.l.google.com:19302' }
+      ]
+    };
+
+    config.uuid_store = new Firebase('https://cryptorun.firebaseio.com/descriptions');
+
+    config.url = (() => {
+      let l = location;
+      return l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') + l.pathname;
+    })();
+
+    return config;
+  })();
+</script>

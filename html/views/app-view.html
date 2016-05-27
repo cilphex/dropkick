@@ -1,0 +1,63 @@
+<link rel="import" href="server-view.html">
+<link rel="import" href="client-view.html">
+<link rel="import" href="empty-view.html">
+
+<dom-module id="app-view">
+  <template>
+    <server-view hidden="[[ isViewHidden(view, 'server') ]]"></server-view>
+    <client-view hidden="[[ isViewHidden(view, 'client') ]]"></client-view>
+    <empty-view hidden="[[ isViewHidden(view, 'empty') ]]"></empty-view>
+  </template>
+
+  <script>
+    class AppView {
+      beforeRegister() {
+        this.is = 'app-view';
+      }
+
+      ready() {
+        this.view = this.getView();
+      }
+
+      getView() {
+        if (this.isSender) {
+          return 'server';
+        }
+        else if (this.isReceiver) {
+          return 'client';
+        }
+        else {
+          return 'empty';
+        }
+      }
+
+      isViewHidden(view, _view) {
+        return view != _view;
+      }
+
+      get isSender() {
+        return location.search === '';
+      }
+
+      get isReceiver() {
+        return !!this.query_uuid;
+      }
+
+      get queryUuid() {
+        let match = location.search.match(/\?c=([0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})/i);
+        return match && match[1];
+      }
+    }
+
+    Polymer(AppView);
+  </script>
+</dom-module>
+
+
+<!--
+created callback.
+Local DOM initialized (This means that local DOM children are created, their property values are set as specified in the template, and ready has been called on them).
+ready callback.
+factoryImpl callback.
+attached callback.
+-->
