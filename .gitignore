@@ -16,3 +16,6 @@ sourceMap.map
 
 # Top-level index.html, etc.
 /*.html
+
+# Webstorm
+.idea
