@@ -1,0 +1,70 @@
+div.serverView {
+  p.fileDrop {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin: 50px auto;
+    width: 200px;
+    height: 200px;
+    max-width: 100%;
+    font-size: 20px;
+    background: #f6f6f6;
+    border-radius: 100px;
+    box-shadow: 0 0px 5px rgba(0,0,0,0.15) inset;
+    transition: width 1.0s, height 1.0s, border-radius 1.0s;
+    transition-delay: 0.25s;
+    transition-timing-function: ease-in-out;
+  }
+
+  div.shareUrl {
+    transition: transform 1.0s, opacity 1.0s;
+    transition-delay: 1.5s;
+    transition-timing-function: ease-in-out;
+    transform: translateY(-10px);
+    opacity: 0;
+
+    p {
+      text-align: center;
+    }
+
+    input {
+      display: block;
+      box-sizing: border-box;
+      margin: 0 auto;
+      padding: 0 20px;
+      width: 275px;
+      line-height: 48px; /* to compensate for border */
+      text-align: center;
+      border: 2px solid #000;
+      border-radius: 6px;
+      outline: none;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
+  }
+
+  &.hover {
+    p.fileDrop {
+      background: #CFF7E3;
+    }
+  }
+
+  &.dropped {
+    p.fileDrop {
+      width: 275px;
+      height: 50px;
+      color: #fff;
+      background: #000;
+      border: none;
+      border-radius: 6px;
+      box-shadow: none;
+    }
+
+    div.shareUrl {
+      opacity: 1.0;
+      transform: translateY(0px);
+    }
+  }
+}
