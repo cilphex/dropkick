@@ -14,6 +14,10 @@ class Server extends React.Component {
 
     this.firebaseStore = new FirebaseStore(this.uuid);
     this.serverRTCStore = new ServerRTCStore(this.firebaseStore);
+
+    this.state = {
+      sendingFile: false,
+    };
   }
 
   get uuid() {
@@ -28,9 +32,34 @@ class Server extends React.Component {
     return url;
   }
 
+  rejectUser = () => {
+    console.log('reject user');
+  };
+
+  approveUser = () => {
+    console.log('approve user');
+
+    this.setState({
+      sendingFile: true,
+    });
+
+    this.serverRTCStore.sendFile();
+  };
+
   render() {
-    const { isHovering, hasDropped, fileName } = fileDropStore;
-    const { error: rtcError } = this.serverRTCStore;
+    const {
+      isHovering,
+      hasDropped,
+      fileName
+    } = fileDropStore;
+
+    const {
+      waiting,
+      videoStream,
+      clientSnap,
+      doneReceiving,
+      error: rtcError
+    } = this.serverRTCStore;
 
     const hoverClass = isHovering ? styles.hover : '';
     const droppedClass = hasDropped ? styles.dropped : '';
@@ -51,7 +80,29 @@ class Server extends React.Component {
           />
         </div>
 
-        {rtcError && <div>RTC Error: {rtcError}</div>}
+        {rtcError && (
+          <div>RTC Error: {rtcError}</div>
+        )}
+
+        {waiting && (
+          <div>Connected, waiting for a selfie...</div>
+        )}
+
+        {videoStream && (
+          <div>
+            <video autoPlay={true} src={videoStream} paused={clientSnap} />
+            <button onClick={this.rejectUser}>Reject</button>
+            <button onClick={this.approveUser}>Approve</button>
+          </div>
+        )}
+
+        {sendingFile && (
+          <div>Sending file...</div>
+        )}
+
+        {doneReceiving && (
+          <div>File sent!</div>
+        )}
       </div>
     );
   }

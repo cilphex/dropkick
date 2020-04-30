@@ -54,6 +54,8 @@ class FirebaseStore {
   };
 
   updateServerDesc = async (desc) => {
+    console.log('firebaseStore: updateServerDesc');
+
     try {
       await this.doc.update({
         server_desc: desc,
@@ -65,6 +67,8 @@ class FirebaseStore {
   };
 
   updateServerCandidate = async (candidate) => {
+    console.log('firebaseStore: updateServerCandidate');
+
     try {
       await this.doc.update({
         server_candidate: candidate,

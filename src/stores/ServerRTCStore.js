@@ -1,17 +1,30 @@
-import { observable } from 'mobx';
-import { rtcPeerConnectionMeta } from 'lib/globals';
+import { observable, computed } from 'mobx';
+import { fileDropStore, rtcPeerConnectionMeta } from 'lib/globals';
 
 class ServerRTCStore {
   firebaseStore   = null;
   stream          = null;
   localConnection = null;
-  remoteStream    = null; // observable?
 
+  @observable sendChannel = null;
+  @observable remoteStream = null;
+  @observable clientSnap = false;
+  @observable doneReceiving = false;
   @observable error = null;
 
   constructor(firebaseStore) {
     this.firebaseStore = firebaseStore;
     this.getLocalStream();
+  }
+
+  @computed get waiting() {
+    const { sendChannel } = this;
+    return sendChannell && sendChannel.readyState === 'open';
+  }
+
+  @computed get videoStream() {
+    const { remoteStream } = this;
+    return remoteStream && window.URL.createObjectURL(stream);
   }
 
   getLocalStream = () => {
@@ -62,9 +75,6 @@ class ServerRTCStore {
 
   sendChannelStateChange = () => {
     console.log('Server: sendChannelStateChange', this.sendChannel.readyState);
-
-    // if sendChannell.readyState === 'open'
-    //   this.ui.waiting()
   };
 
   sendChannelError = (err) => {
@@ -76,10 +86,10 @@ class ServerRTCStore {
 
     switch(e.data) {
       case 'client-snap':
-        // this.ui.clientSnap();
+        this.clientSnap = true;
         break;
       case 'done-receiving':
-        // this.ui.done()
+        this.doneReceiving = true;
         break;
     }
   };
@@ -102,6 +112,8 @@ class ServerRTCStore {
   };
 
   gotLocalIceCandidate = (e) => {
+    console.log('serverRTCStore: gotLocalIceCandidate');
+
     if (e.candidate) {
       const candidate = e.candidate.toJSON();
       this.firebaseStore.updateServerCandidate(candidate);
@@ -129,8 +141,32 @@ class ServerRTCStore {
   };
 
   sendFile = () => {
-    console.log('Server: sendFile!');
-  }
+    const { file } = fileDropStore;
+    const sendChannel = this.sendChannel;
+
+    console.log('Server: sendFile', file);
+
+    sendChannel.send(file.name);
+    sendChannel.send(file.size);
+
+    const chunkSize = 16384;
+    const sliceFile = (offset) => {
+      const reader = new window.FileReader();
+      reader.onload = (() => {
+        return (e) => {
+          sendChannel.send(e.target.result);
+          if (file.size > offset + e.target.result.byteLength) {
+            window.setTimeout(sliceFile, 0, offset + chunkSize);
+          }
+          // sendProgress line here
+        }
+      })(file);
+      const slice = file.slice(offset, offset + chunkSize);
+      reader.readAsArrayBuffer(slice);
+    };
+
+    sliceFile(0);
+  };
 }
 
 export default ServerRTCStore;
