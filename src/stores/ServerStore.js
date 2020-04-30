@@ -1,20 +1,27 @@
 import { observable, computed } from 'mobx';
+import * as firebase from 'firebase/app';
+import 'firebase/firestore';
 import { fileDropStore, rtcPeerConnectionMeta } from 'lib/globals';
 
-class ServerRTCStore {
-  firebaseStore   = null;
-  stream          = null;
-  localConnection = null;
+class ServerStore {
+  uuid                    = null;
+  doc                     = null;
+  clientDescReceived      = false;
+  clientCandidateReceived = false;
+  stream                  = null;
+  localConnection         = null;
 
-  @observable sendChannel = null;
+  @observable sendChannel  = null;
   @observable remoteStream = null;
-  @observable clientSnap = false;
-  @observable sendingFile = false;
-  @observable sentFile = false;
-  @observable error = null;
+  @observable clientSnap   = false;
+  @observable sendingFile  = false;
+  @observable sentFile     = false;
+  @observable error        = null;
 
-  constructor(firebaseStore) {
-    this.firebaseStore = firebaseStore;
+  constructor(uuid) {
+    this.uuid = uuid;
+    this.initFirebase();
+    this.setupDbListener();
     this.getLocalStream();
   }
 
@@ -27,6 +34,75 @@ class ServerRTCStore {
     const { remoteStream } = this;
     return remoteStream && window.URL.createObjectURL(remoteStream);
   }
+
+  // ==========================================================================
+  // Firebase
+
+  initFirebase() {
+    firebase.initializeApp({
+      apiKey: "AIzaSyDGHYeXsm1N9Bd06CqE_WoC_qaPu0nI5i8",
+      authDomain: "dropkick-730ba.firebaseapp.com",
+      databaseURL: "https://dropkick-730ba.firebaseio.com",
+      projectId: "dropkick-730ba",
+      storageBucket: "dropkick-730ba.appspot.com",
+      messagingSenderId: "299886330652",
+      appId: "1:299886330652:web:157bdcbc808ef8a6abb0d9",
+      measurementId: "G-1YP59MM7CK"
+    });
+
+    const db = firebase.firestore();
+    this.doc = db.collection('uuids').doc(this.uuid);
+  }
+
+  setupDbListener() {
+    this.doc.onSnapshot(this.onSnapshot);
+    this.doc.set({});
+  }
+
+  onSnapshot = (doc) => {
+    const data = doc.data();
+    const { client_desc, client_candidate } = data;
+
+    if (client_desc && !this.clientDescReceived) {
+      console.log('firebaseStore: onSnapshot: answer received');
+      this.clientDescReceived = true;
+      this.answerReceived(client_desc);
+    }
+    else if (client_candidate && !this.clientCandidateReceived) {
+      console.log('firebaseStore: onSnapshot: got remote ice candidate');
+      this.clientCandidateReceived = true;
+      this.gotRemoteIceCandidate(client_candidate);
+    }
+
+    console.log('snapshot updated', doc.data());
+  };
+
+  updateServerDesc = async (desc) => {
+    console.log('firebaseStore: updateServerDesc');
+
+    try {
+      await this.doc.update({
+        server_desc: desc,
+      });
+    }
+    catch(err) {
+      console.log('firebaseStore: error setting server_desc', this.uuid, desc);
+    }
+  };
+
+  updateServerCandidate = async (candidate) => {
+    console.log('firebaseStore: updateServerCandidate');
+
+    try {
+      await this.doc.update({ server_candidate: candidate });
+    }
+    catch(err) {
+      console.log('firebaseStore: error setting server_candidate', this.uuid, candidate);
+    }
+  };
+
+  // ==========================================================================
+  // WebRTC
 
   getLocalStream = () => {
     const constraints = { video: true };
@@ -58,7 +134,7 @@ class ServerRTCStore {
     this.localConnection.onaddstream = (e) => {
       console.log('Server: onaddstream', e.stream);
       this.remoteStream = e.stream;
-    }
+    };
     this.localConnection.addStream(this.stream);
 
     this.sendChannel = this.localConnection.createDataChannel('my-test-channel', {});
@@ -72,6 +148,17 @@ class ServerRTCStore {
       this.localDescriptionSuccess,
       this.localDescriptionError
     );
+  };
+
+  localDescriptionSuccess = (desc) => {
+    console.log('Server: gotLocalDescription');
+    this.localConnection.setLocalDescription(desc);
+    desc = this.localConnection.localDescription.toJSON();
+    this.updateServerDesc(desc);
+  };
+
+  localDescriptionError = (err) => {
+    console.log('Server: localDescriptionError', err);
   };
 
   sendChannelStateChange = () => {
@@ -96,17 +183,6 @@ class ServerRTCStore {
     }
   };
 
-  localDescriptionSuccess = (desc) => {
-    console.log('Server: gotLocalDescription');
-    this.localConnection.setLocalDescription(desc);
-    desc = this.localConnection.localDescription.toJSON();
-    this.firebaseStore.updateServerDesc(desc);
-  };
-
-  localDescriptionError = (err) => {
-    console.log('Server: localDescriptionError', err);
-  };
-
   answerReceived = (answerDescJson) => {
     console.log('Server: answer_desc_json');
     const answerDesc = new RTCSessionDescription(answerDescJson);
@@ -118,7 +194,7 @@ class ServerRTCStore {
 
     if (e.candidate) {
       const candidate = e.candidate.toJSON();
-      this.firebaseStore.updateServerCandidate(candidate);
+      this.updateServerCandidate(candidate);
     }
   };
 
@@ -172,4 +248,4 @@ class ServerRTCStore {
   };
 }
 
-export default ServerRTCStore;
+export default ServerStore;

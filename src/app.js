@@ -28,29 +28,32 @@ class App extends React.Component {
     return match && match[1];
   }
 
-  pageView() {
-    if (this.isSender()) {
-      return <Server />;
-    }
-    if (this.isReceiver()) {
-      return <Client queryUuid={this.queryUuid} />;
-    }
-    return <Empty />;
-  }
-
   render() {
-    return (
-      <div
-        className={styles.app}
-        onDragEnter={fileDropStore.onDragEnter}
-        onDragLeave={fileDropStore.onDragLeave}
-        onDragOver={fileDropStore.onDragOver}
-        onDrop={fileDropStore.onDrop}
-      >
-        <h1>dropkick</h1>
-        {this.pageView()}
-      </div>
-    )
+    if (this.isReceiver()) {
+      return (
+        <div>
+          <h1>dropkick</h1>
+          <Client queryUuid={this.queryUuid} />
+        </div>
+      );
+    }
+
+    if (this.isSender()) {
+      return (
+        <div
+            className={styles.app}
+            onDragEnter={fileDropStore.onDragEnter}
+            onDragLeave={fileDropStore.onDragLeave}
+            onDragOver={fileDropStore.onDragOver}
+            onDrop={fileDropStore.onDrop}
+        >
+          <h1>dropkick</h1>
+          <Server />
+        </div>
+      );
+    }
+
+    return <Empty />;
   }
 }
 

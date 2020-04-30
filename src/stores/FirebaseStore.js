@@ -31,7 +31,6 @@ class FirebaseStore {
   }
 
   setupDbListener() {
-    console.log('setupDbListener');
     this.doc.onSnapshot(this.onSnapshot);
     this.doc.set({});
   }

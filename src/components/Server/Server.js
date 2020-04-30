@@ -1,9 +1,9 @@
 import React from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { observer } from 'mobx-react';
+// TODO: Is this not needed here?
 import { fileDropStore } from 'lib/globals';
-import FirebaseStore from 'stores/FirebaseStore';
-import ServerRTCStore from 'stores/ServerRTCStore';
+import ServerStore from 'stores/ServerStore';
 
 import styles from './Server.scss';
 
@@ -12,12 +12,7 @@ class Server extends React.Component {
   constructor(props) {
     super(props);
 
-    this.firebaseStore = new FirebaseStore(this.uuid);
-    this.serverRTCStore = new ServerRTCStore(this.firebaseStore);
-
-    this.state = {
-      sendingFile: false,
-    };
+    this.serverStore = new ServerStore(this.uuid);
   }
 
   get uuid() {
@@ -39,10 +34,6 @@ class Server extends React.Component {
   approveUser = () => {
     console.log('approve user');
 
-    this.setState({
-      sendingFile: true,
-    });
-
     this.serverRTCStore.sendFile();
   };
 
@@ -50,16 +41,14 @@ class Server extends React.Component {
     const {
       isHovering,
       hasDropped,
-      fileName
-    } = fileDropStore;
-
-    const {
+      fileName,
       waiting,
       videoStream,
       clientSnap,
-      doneReceiving,
-      error: rtcError
-    } = this.serverRTCStore;
+      sendingFile,
+      sentFile,
+      rtcError,
+    } = this.serverStore;
 
     const hoverClass = isHovering ? styles.hover : '';
     const droppedClass = hasDropped ? styles.dropped : '';
@@ -100,7 +89,7 @@ class Server extends React.Component {
           <div>Sending file...</div>
         )}
 
-        {doneReceiving && (
+        {sentFile && (
           <div>File sent!</div>
         )}
       </div>
