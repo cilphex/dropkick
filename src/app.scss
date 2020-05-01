@@ -17,4 +17,28 @@ div.app {
     background-position: center center;
     background-repeat: no-repeat;
   }
+
+  button {
+    display: inline-block;
+    width: 150px;
+    font-weight: bold;
+    line-height: 50px;
+    text-align: center;
+    text-decoration: none;
+    color: #000;
+    border: 1px solid #000;
+    border-radius: 6px;
+    cursor: pointer;
+
+    &:hover,
+    &:active,
+    &:focus {
+      color: #fff;
+      background: #000;
+    }
+
+    &:active {
+      background: #555;
+    }
+  }
 }

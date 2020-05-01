@@ -8,7 +8,7 @@ class ClientStore {
   doc = null;
   serverDescReceived = false;
   serverCandidateReceived = false;
-  stream = null;
+
   localConnection = null;
   fileSize = 0;
   fileName = null;
@@ -16,9 +16,13 @@ class ClientStore {
   receivedSize = 0;
 
   remoteStream = null; // observable?
-  receiveChannel = null;
+  @observable receiveChannel = null;
   receivingFile = false;
   receivedFile = false;
+
+  @observable stream = null;
+  @observable paused = false;
+  @observable error = null;
 
   constructor(uuid) {
     this.uuid = uuid;
@@ -83,13 +87,14 @@ class ClientStore {
   };
 
   getLocalStreamSuccess = (stream) => {
-    console.log('Client: gotLocalStreamSuccess');
+    console.log('Client: getLocalStreamSuccess');
     this.stream = stream;
     this.getRemoteOffer();
   };
 
   getLocalStreamError = (err) => {
     console.log('Client: getLocalStreamError', err);
+    this.error = err.message;
   };
 
   getRemoteOffer = () => {
@@ -134,7 +139,7 @@ class ClientStore {
   gotRemoteDataChannel = (e) => {
     console.log('Client: gotRemoteDataChannel', e);
     this.receiveChannel = e.channel;
-    this.receiveChannel.binaryType = 'arrayBuffer';
+    this.receiveChannel.binaryType = 'arraybuffer';
     this.receiveChannel.onmessage = this.receiveChannelMessage;
     this.receiveChannel.onopen = this.receiveChannelStateChange;
     this.receiveChannel.onclose = this.receiveChannelStateChange;
@@ -195,21 +200,24 @@ class ClientStore {
       const received = new window.Blob(this.receivedBuffer);
       this.receivedBuffer = [];
 
-      this.fileReceived = true;
+      this.receivedFile = true;
       this.receiveChannel.send('done-receiving');
     }
   };
 
   receiveChannelStateChange = () => {
     console.log('Client: receiveChannelStateChange', this.receiveChannel.readyState);
-    if (this.receiveChannel.readyState === 'open') {
-      // this.ui = new ClientUI(this, this.stream)
-    }
   };
 
   sendSnap = () => {
     this.receiveChannel.send('client-snap');
   };
+
+  snap = () => {
+    console.log(1)
+    this.paused = true;
+    console.log(2)
+  }
 }
 
 export default ClientStore;

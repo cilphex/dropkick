@@ -30,11 +30,6 @@ class ServerStore {
     return sendChannel && sendChannel.readyState === 'open';
   }
 
-  @computed get videoStream() {
-    const { remoteStream } = this;
-    return remoteStream && window.URL.createObjectURL(remoteStream);
-  }
-
   // ==========================================================================
   // Firebase
 

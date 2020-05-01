@@ -31,7 +31,7 @@ class App extends React.Component {
   render() {
     if (this.isReceiver()) {
       return (
-        <div>
+        <div className={styles.app}>
           <h1>dropkick</h1>
           <Client queryUuid={this.queryUuid} />
         </div>
@@ -41,11 +41,11 @@ class App extends React.Component {
     if (this.isSender()) {
       return (
         <div
-            className={styles.app}
-            onDragEnter={fileDropStore.onDragEnter}
-            onDragLeave={fileDropStore.onDragLeave}
-            onDragOver={fileDropStore.onDragOver}
-            onDrop={fileDropStore.onDrop}
+          className={styles.app}
+          onDragEnter={fileDropStore.onDragEnter}
+          onDragLeave={fileDropStore.onDragLeave}
+          onDragOver={fileDropStore.onDragOver}
+          onDrop={fileDropStore.onDrop}
         >
           <h1>dropkick</h1>
           <Server />

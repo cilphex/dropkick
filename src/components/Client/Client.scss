@@ -1,3 +1,20 @@
 div.clientView {
+  div.idRequired {
+    margin: 50px 0 20px;
+    text-align: center;
+  }
 
+  video {
+    display: block;
+    margin: 20px auto;
+    width: 200px;
+    height: 200px;
+    border-radius: 1000px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+    object-fit: cover;
+
+    &.paused {
+      border: 5px solid #0BD;
+    }
+  }
 }

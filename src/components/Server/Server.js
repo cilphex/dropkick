@@ -42,12 +42,15 @@ class Server extends React.Component {
       isHovering,
       hasDropped,
       fileName,
+    } = fileDropStore;
+
+    const {
       waiting,
-      videoStream,
+      remoteStream: videoStream,
       clientSnap,
       sendingFile,
       sentFile,
-      rtcError,
+      error,
     } = this.serverStore;
 
     const hoverClass = isHovering ? styles.hover : '';
@@ -69,8 +72,8 @@ class Server extends React.Component {
           />
         </div>
 
-        {rtcError && (
-          <div>RTC Error: {rtcError}</div>
+        {error && (
+          <div>Error: {error}</div>
         )}
 
         {waiting && (
@@ -79,7 +82,7 @@ class Server extends React.Component {
 
         {videoStream && (
           <div>
-            <video autoPlay={true} src={videoStream} paused={clientSnap} />
+            <video autoPlay={true} src={videoStream} paused={clientSnap.toString()} />
             <button onClick={this.rejectUser}>Reject</button>
             <button onClick={this.approveUser}>Approve</button>
           </div>
