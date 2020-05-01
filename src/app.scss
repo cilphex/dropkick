@@ -18,17 +18,28 @@ div.app {
     background-repeat: no-repeat;
   }
 
-  button {
+  input {
+    font-size: 16px;
+  }
+
+  p {
+    margin: 10px 0;
+  }
+
+  button,
+  a.btn {
     display: inline-block;
-    width: 150px;
+    padding: 0 20px;
+    font-size: 16px;
     font-weight: bold;
     line-height: 50px;
     text-align: center;
     text-decoration: none;
     color: #000;
-    border: 1px solid #000;
+    border: 2px solid #000;
     border-radius: 6px;
     cursor: pointer;
+    outline: none;
 
     &:hover,
     &:active,
@@ -40,5 +51,9 @@ div.app {
     &:active {
       background: #555;
     }
+  }
+
+  .error {
+    color: red;
   }
 }

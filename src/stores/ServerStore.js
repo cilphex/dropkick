@@ -11,23 +11,18 @@ class ServerStore {
   stream                  = null;
   localConnection         = null;
 
-  @observable sendChannel  = null;
-  @observable remoteStream = null;
-  @observable clientSnap   = false;
-  @observable sendingFile  = false;
-  @observable sentFile     = false;
-  @observable error        = null;
+  @observable sendChannel       = null;
+  @observable remoteVideoStream = null;
+  @observable rejected          = false;
+  @observable sendingFile       = false;
+  @observable sentFile          = false;
+  @observable error             = null;
 
   constructor(uuid) {
     this.uuid = uuid;
     this.initFirebase();
     this.setupDbListener();
     this.getLocalStream();
-  }
-
-  @computed get waiting() {
-    const { sendChannel } = this;
-    return sendChannel && sendChannel.readyState === 'open';
   }
 
   // ==========================================================================
@@ -115,6 +110,7 @@ class ServerStore {
   };
 
   getLocalStreamError = (err) => {
+    console.log('Server: getLocalStreamError', err);
     if (err instanceof DOMException && err.message == 'Requested device not found') {
       this.error = 'Please enable your webcam';
     }
@@ -128,7 +124,7 @@ class ServerStore {
     this.localConnection.onicecandidate = this.gotLocalIceCandidate;
     this.localConnection.onaddstream = (e) => {
       console.log('Server: onaddstream', e.stream);
-      this.remoteStream = e.stream;
+      this.remoteVideoStream = e.stream;
     };
     this.localConnection.addStream(this.stream);
 
@@ -168,12 +164,10 @@ class ServerStore {
     console.log('Server: sendChannelMessage', e.data);
 
     switch(e.data) {
-      case 'client-snap':
-        this.clientSnap = true;
-        break;
       case 'done-receiving':
         this.sendingFile = false;
         this.sentFile = true;
+        this.remoteVideoStream = null;
         break;
     }
   };
@@ -213,10 +207,16 @@ class ServerStore {
     console.log('Server: addIceCandidateError', err);
   };
 
+  rejectUser = () => {
+    this.sendChannel.send('rejected');
+    this.rejected = true;
+  };
+
   sendFile = () => {
     this.sendingFile = true;
+
     const { file } = fileDropStore;
-    const sendChannel = this.sendChannel;
+    const { sendChannel }  = this;
 
     console.log('Server: sendFile', file);
 

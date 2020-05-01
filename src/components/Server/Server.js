@@ -5,6 +5,7 @@ import { observer } from 'mobx-react';
 import { fileDropStore } from 'lib/globals';
 import ServerStore from 'stores/ServerStore';
 
+import appStyles from 'app.scss';
 import styles from './Server.scss';
 
 @observer
@@ -12,6 +13,7 @@ class Server extends React.Component {
   constructor(props) {
     super(props);
 
+    this.videoRef = React.createRef();
     this.serverStore = new ServerStore(this.uuid);
   }
 
@@ -29,12 +31,22 @@ class Server extends React.Component {
 
   rejectUser = () => {
     console.log('reject user');
+    this.serverStore.rejectUser();
   };
 
   approveUser = () => {
     console.log('approve user');
 
-    this.serverRTCStore.sendFile();
+    this.serverStore.sendFile();
+  };
+
+  componentDidUpdate = () => {
+    const { remoteVideoStream } = this.serverStore;
+    const { current: videoElement } = this.videoRef;
+
+    if (!videoElement) return;
+
+    videoElement.srcObject = remoteVideoStream;
   };
 
   render() {
@@ -45,9 +57,8 @@ class Server extends React.Component {
     } = fileDropStore;
 
     const {
-      waiting,
-      remoteStream: videoStream,
-      clientSnap,
+      remoteVideoStream,
+      rejected,
       sendingFile,
       sentFile,
       error,
@@ -55,45 +66,68 @@ class Server extends React.Component {
 
     const hoverClass = isHovering ? styles.hover : '';
     const droppedClass = hasDropped ? styles.dropped : '';
+    const rejectedClass = rejected ? styles.rejected : '';
 
     return (
       <div className={`${styles.serverView} ${hoverClass} ${droppedClass}`}>
-        <p className={styles.fileDrop}>
-          {fileName ? fileName : 'Drop a file'}
+        <p className={`${styles.fileDrop} ${rejectedClass}`}>
+          {fileName ? (
+            <span className={styles.fileName}>📎 {fileName}</span>
+          ) : (
+            <span className={styles.dropText}>Drop a file</span>
+          )}
         </p>
 
-        <div className={`${styles.shareUrl} ${styles.hidden}`}>
-          <p>Share this url:</p>
-          <input
-            type="text"
-            spellCheck="false"
-            value={this.shareUrl}
-            readOnly={true}
-          />
-        </div>
-
         {error && (
-          <div>Error: {error}</div>
-        )}
-
-        {waiting && (
-          <div>Connected, waiting for a selfie...</div>
-        )}
-
-        {videoStream && (
-          <div>
-            <video autoPlay={true} src={videoStream} paused={clientSnap.toString()} />
-            <button onClick={this.rejectUser}>Reject</button>
-            <button onClick={this.approveUser}>Approve</button>
+          <div className={appStyles.error}>
+            <p>Error: {error}</p>
           </div>
         )}
 
-        {sendingFile && (
-          <div>Sending file...</div>
+        {!sentFile && !remoteVideoStream && (
+          <div className={`${styles.shareUrl} ${styles.hidden}`}>
+            <p>Share this link:</p>
+            <input
+              type="text"
+              spellCheck="false"
+              value={this.shareUrl}
+              readOnly={true}
+            />
+          </div>
+        )}
+
+        {remoteVideoStream && (
+          <div className={styles.pendingApproval}>
+            <p>Recepient Identity</p>
+            <video
+              ref={this.videoRef}
+              autoPlay={true}
+            />
+
+            {sendingFile ? (
+              <p>Sending file...</p>
+            ) : (
+              !rejected && (
+                <div className={styles.buttons}>
+                  <button onClick={this.rejectUser}>Reject</button>
+                  <button onClick={this.approveUser}>Approve</button>
+                </div>
+              )
+            )}
+          </div>
+        )}
+
+        {rejected && (
+          <div className={styles.rejected}>
+            <p><strong>Rejected</strong></p>
+            <p>The file will not be sent</p>
+          </div>
         )}
 
         {sentFile && (
-          <div>File sent!</div>
+          <div className={styles.fileSent}>
+            <p>File sent! 🎉</p>
+          </div>
         )}
       </div>
     );

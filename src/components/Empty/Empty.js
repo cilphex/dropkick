@@ -1,5 +1,7 @@
 import React from 'react';
 
+import styles from './Empty.scss';
+
 class Empty extends React.Component {
   constructor(props) {
     super(props);
@@ -7,7 +9,9 @@ class Empty extends React.Component {
 
   render() {
     return (
-        <div>Empty view.</div>
+      <div className={styles.empty}>
+        <p>Sorry, nothing is here.</p>
+      </div>
     );
   }
 }

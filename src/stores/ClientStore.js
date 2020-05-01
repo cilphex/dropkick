@@ -8,20 +8,19 @@ class ClientStore {
   doc = null;
   serverDescReceived = false;
   serverCandidateReceived = false;
-
   localConnection = null;
   fileSize = 0;
-  fileName = null;
   receivedBuffer = [];
   receivedSize = 0;
+  remoteStream = null;
 
-  remoteStream = null; // observable?
+  @observable rejected = false;
+  @observable fileName = null;
   @observable receiveChannel = null;
-  receivingFile = false;
-  receivedFile = false;
+  @observable receivingFile = false;
+  @observable receivedFile = false;
 
-  @observable stream = null;
-  @observable paused = false;
+  @observable localVideoStream = null;
   @observable error = null;
 
   constructor(uuid) {
@@ -29,6 +28,15 @@ class ClientStore {
     this.initFirebase();
     this.setupDbListener();
     this.getLocalStream();
+  }
+
+  @computed get fileObjectURL() {
+    const { receivedFile, receivedBuffer } = this;
+
+    if (!receivedFile) return null;
+
+    const blob = new window.Blob(receivedBuffer);
+    return URL.createObjectURL(blob);
   }
 
   // ==========================================================================
@@ -48,12 +56,6 @@ class ClientStore {
 
     const db = firebase.firestore();
     this.doc = db.collection('uuids').doc(this.uuid);
-  }
-
-  @computed get fileDownloadURL() {
-    const { fileReceived, receivedBuffer } = this;
-
-    return fileReceived && new window.Blob(receivedBuffer);
   }
 
   setupDbListener() {
@@ -86,9 +88,9 @@ class ClientStore {
     );
   };
 
-  getLocalStreamSuccess = (stream) => {
+  getLocalStreamSuccess = (localVideoStream) => {
     console.log('Client: getLocalStreamSuccess');
-    this.stream = stream;
+    this.localVideoStream = localVideoStream;
     this.getRemoteOffer();
   };
 
@@ -107,10 +109,11 @@ class ClientStore {
     this.localConnection.ondatachannel = this.gotRemoteDataChannel;
     this.localConnection.onicecandidate = this.gotLocalIceCandidate;
     this.localConnection.onaddstream = (e) => {
+      // TODO: I think this might be server-side code that can be removed?
       console.log('Client: onaddstream');
       this.remoteStream = e.stream;
     };
-    this.localConnection.addStream(this.stream);
+    this.localConnection.addStream(this.localVideoStream);
     this.localConnection.setRemoteDescription(offerDesc);
     this.localConnection.createAnswer(
       this.localAnswerSuccess,
@@ -174,6 +177,11 @@ class ClientStore {
   receiveChannelMessage = (e) => {
     console.log('Client: receiveChannelMessage', e);
 
+    if (e.data === 'rejected') {
+      this.rejected = true;
+      return;
+    }
+
     this.receivingFile = true;
 
     if (!this.fileName) {
@@ -197,9 +205,7 @@ class ClientStore {
     if (this.receivedSize === this.fileSize) {
       console.log('Client: done receiving file');
 
-      const received = new window.Blob(this.receivedBuffer);
-      this.receivedBuffer = [];
-
+      this.receivingFile = false;
       this.receivedFile = true;
       this.receiveChannel.send('done-receiving');
     }
@@ -208,16 +214,6 @@ class ClientStore {
   receiveChannelStateChange = () => {
     console.log('Client: receiveChannelStateChange', this.receiveChannel.readyState);
   };
-
-  sendSnap = () => {
-    this.receiveChannel.send('client-snap');
-  };
-
-  snap = () => {
-    console.log(1)
-    this.paused = true;
-    console.log(2)
-  }
 }
 
 export default ClientStore;

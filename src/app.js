@@ -16,7 +16,7 @@ class App extends React.Component {
   }
 
   isSender() {
-    return location.search === '';
+    return location.pathname === '/' && location.search === '';
   }
 
   isReceiver() {
@@ -53,7 +53,12 @@ class App extends React.Component {
       );
     }
 
-    return <Empty />;
+    return (
+      <div className={styles.app}>
+        <h1>dropkick</h1>
+        <Empty />
+      </div>
+    );
   }
 }
 
