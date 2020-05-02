@@ -1,3 +1,3 @@
 steps:
   - name: gcr.io/cloud-builders/gsutil
-    args: ["-m", "rsync", "-r", "-c", "-d", ".", "gs://dropkick.craighammell.com"]
+    args: ["-m", "rsync", "-r", "-c", "-d", "./build", "gs://dropkick.craighammell.com"]
