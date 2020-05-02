@@ -12,14 +12,14 @@ class ClientStore {
   fileSize = 0;
   receivedBuffer = [];
   receivedSize = 0;
-  remoteStream = null;
 
+  @observable alreadyUsed = false;
+  @observable connectionReady = false;
   @observable rejected = false;
   @observable fileName = null;
   @observable receiveChannel = null;
   @observable receivingFile = false;
   @observable receivedFile = false;
-
   @observable localVideoStream = null;
   @observable error = null;
 
@@ -64,7 +64,13 @@ class ClientStore {
 
   onSnapshot = (doc) => {
     const data = doc.data();
-    const { server_desc, server_candidate } = data;
+    const { connectionReady } = this;
+    const { connection_made, server_desc, server_candidate } = data;
+
+    if (!connectionReady && connection_made) {
+      this.alreadyUsed = true;
+      return;
+    }
 
     if (server_desc && !this.serverDescReceived) {
       this.serverDescReceived = true;
@@ -96,7 +102,12 @@ class ClientStore {
 
   getLocalStreamError = (err) => {
     console.log('Client: getLocalStreamError', err);
-    this.error = err.message;
+    if (err.message == 'Permission denied' || err.message == 'Requested device not found') {
+      this.error = 'Please enable your webcam';
+    }
+    else {
+      this.error = err.message;
+    }
   };
 
   getRemoteOffer = () => {
@@ -108,11 +119,7 @@ class ClientStore {
     this.localConnection = new RTCPeerConnection(rtcPeerConnectionMeta);
     this.localConnection.ondatachannel = this.gotRemoteDataChannel;
     this.localConnection.onicecandidate = this.gotLocalIceCandidate;
-    this.localConnection.onaddstream = (e) => {
-      // TODO: I think this might be server-side code that can be removed?
-      console.log('Client: onaddstream');
-      this.remoteStream = e.stream;
-    };
+    this.localConnection.onaddstream = (e) => { /* Do nothing in client */ };
     this.localConnection.addStream(this.localVideoStream);
     this.localConnection.setRemoteDescription(offerDesc);
     this.localConnection.createAnswer(
@@ -168,6 +175,7 @@ class ClientStore {
 
   addIceCandidateSuccess = () => {
     console.log('Client: addIceCandidateSuccess');
+    this.connectionReady = true;
   };
 
   addIceCandidateError = (err) => {

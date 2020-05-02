@@ -4,25 +4,27 @@ import 'firebase/firestore';
 import { fileDropStore, rtcPeerConnectionMeta } from 'lib/globals';
 
 class ServerStore {
-  uuid                    = null;
-  doc                     = null;
-  clientDescReceived      = false;
+  uuid = null;
+  doc = null;
+  clientDescReceived = false;
   clientCandidateReceived = false;
-  stream                  = null;
-  localConnection         = null;
+  stream = null;
+  localConnection = null;
 
-  @observable sendChannel       = null;
+  @observable sendChannel = null;
   @observable remoteVideoStream = null;
-  @observable rejected          = false;
-  @observable sendingFile       = false;
-  @observable sentFile          = false;
-  @observable error             = null;
+  @observable rejected = false;
+  @observable sendingFile = false;
+  @observable sentFile = false;
+  @observable error = null;
 
   constructor(uuid) {
     this.uuid = uuid;
     this.initFirebase();
     this.setupDbListener();
     this.getLocalStream();
+    // this.setupLocalConnection();
+    // setTimeout(this.setupLocalConnection, 2000);
   }
 
   // ==========================================================================
@@ -64,16 +66,14 @@ class ServerStore {
       this.gotRemoteIceCandidate(client_candidate);
     }
 
-    console.log('snapshot updated', doc.data());
+    // console.log('snapshot updated', doc.data());
   };
 
   updateServerDesc = async (desc) => {
     console.log('firebaseStore: updateServerDesc');
 
     try {
-      await this.doc.update({
-        server_desc: desc,
-      });
+      await this.doc.update({ server_desc: desc });
     }
     catch(err) {
       console.log('firebaseStore: error setting server_desc', this.uuid, desc);
@@ -93,7 +93,7 @@ class ServerStore {
 
   // ==========================================================================
   // WebRTC
-
+  //
   getLocalStream = () => {
     const constraints = { video: true };
     navigator.getUserMedia(
@@ -111,7 +111,7 @@ class ServerStore {
 
   getLocalStreamError = (err) => {
     console.log('Server: getLocalStreamError', err);
-    if (err instanceof DOMException && err.message == 'Requested device not found') {
+    if (err.message == 'Permission denied' || err.message == 'Requested device not found') {
       this.error = 'Please enable your webcam';
     }
     else {
@@ -122,10 +122,7 @@ class ServerStore {
   setupLocalConnection = () => {
     this.localConnection = new RTCPeerConnection(rtcPeerConnectionMeta);
     this.localConnection.onicecandidate = this.gotLocalIceCandidate;
-    this.localConnection.onaddstream = (e) => {
-      console.log('Server: onaddstream', e.stream);
-      this.remoteVideoStream = e.stream;
-    };
+    this.localConnection.onaddstream = this.getRemoteStreamSuccess;
     this.localConnection.addStream(this.stream);
 
     this.sendChannel = this.localConnection.createDataChannel('my-test-channel', {});
@@ -139,6 +136,18 @@ class ServerStore {
       this.localDescriptionSuccess,
       this.localDescriptionError
     );
+  };
+
+  getRemoteStreamSuccess = async (e) => {
+    console.log('Server: getRemoteStreamSuccess', e.stream);
+    try {
+      await this.doc.update({ connection_made: true });
+    }
+    catch(err) {
+      this.error = err;
+      return;
+    }
+    this.remoteVideoStream = e.stream;
   };
 
   localDescriptionSuccess = (desc) => {
@@ -158,6 +167,7 @@ class ServerStore {
 
   sendChannelError = (err) => {
     console.log('Server: sendChannelError', err);
+    this.error = 'The other side disconnected';
   };
 
   sendChannelMessage = (e) => {
@@ -165,9 +175,7 @@ class ServerStore {
 
     switch(e.data) {
       case 'done-receiving':
-        this.sendingFile = false;
-        this.sentFile = true;
-        this.remoteVideoStream = null;
+        this.sendFileComplete();
         break;
     }
   };
@@ -179,7 +187,7 @@ class ServerStore {
   };
 
   gotLocalIceCandidate = (e) => {
-    console.log('serverRTCStore: gotLocalIceCandidate');
+    console.log('Server: gotLocalIceCandidate');
 
     if (e.candidate) {
       const candidate = e.candidate.toJSON();
@@ -207,12 +215,12 @@ class ServerStore {
     console.log('Server: addIceCandidateError', err);
   };
 
-  rejectUser = () => {
+  rejectUser = async () => {
     this.sendChannel.send('rejected');
     this.rejected = true;
   };
 
-  sendFile = () => {
+  sendFile = async () => {
     this.sendingFile = true;
 
     const { file } = fileDropStore;
@@ -241,6 +249,12 @@ class ServerStore {
 
     sliceFile(0);
   };
+
+  sendFileComplete = async () => {
+    this.sendingFile = false;
+    this.sentFile = true;
+    this.remoteVideoStream = null;
+  }
 }
 
 export default ServerStore;

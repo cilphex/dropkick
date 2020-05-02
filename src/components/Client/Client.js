@@ -26,6 +26,8 @@ class Client extends React.Component {
 
   render() {
     const {
+      alreadyUsed,
+      connectionReady,
       localVideoStream,
       rejected,
       receivingFile,
@@ -34,6 +36,36 @@ class Client extends React.Component {
       fileObjectURL,
       error,
     } = this.clientStore;
+
+    if (!receivedFile && error) {
+      return (
+        <div className={styles.clientView}>
+          <p className={appStyles.error}>
+            {error}
+          </p>
+        </div>
+      );
+    }
+
+    if (alreadyUsed) {
+      return (
+        <div className={styles.clientView}>
+          <p className={styles.settingUp}>
+            URLs can only be used once, and this one has already been used.
+          </p>
+        </div>
+      );
+    }
+
+    if (!connectionReady) {
+      return (
+        <div className={styles.clientView}>
+          <p className={styles.settingUp}>
+            Setting up...
+          </p>
+        </div>
+      );
+    }
 
     return (
       <div className={styles.clientView}>
@@ -47,12 +79,6 @@ class Client extends React.Component {
             <p className={styles.waitingForApproval}>
               Waiting for approval&hellip;
             </p>
-          </div>
-        )}
-
-        {error && (
-          <div className={appStyles.error}>
-            <p>Error: {error}</p>
           </div>
         )}
 

@@ -36,7 +36,6 @@ class Server extends React.Component {
 
   approveUser = () => {
     console.log('approve user');
-
     this.serverStore.sendFile();
   };
 
@@ -68,6 +67,16 @@ class Server extends React.Component {
     const droppedClass = hasDropped ? styles.dropped : '';
     const rejectedClass = rejected ? styles.rejected : '';
 
+    if (!sentFile && error) {
+      return (
+        <div className={styles.serverView}>
+          <p className={appStyles.error}>
+            {error}
+          </p>
+        </div>
+      );
+    }
+
     return (
       <div className={`${styles.serverView} ${hoverClass} ${droppedClass}`}>
         <p className={`${styles.fileDrop} ${rejectedClass}`}>
@@ -77,12 +86,6 @@ class Server extends React.Component {
             <span className={styles.dropText}>Drop a file</span>
           )}
         </p>
-
-        {error && (
-          <div className={appStyles.error}>
-            <p>Error: {error}</p>
-          </div>
-        )}
 
         {!sentFile && !remoteVideoStream && (
           <div className={`${styles.shareUrl} ${styles.hidden}`}>

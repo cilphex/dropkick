@@ -1,11 +1,13 @@
 div.serverView {
+  margin: 50px auto;
+
   p.fileDrop {
     display: flex;
+    margin: 0 auto 50px;
     padding: 20px;
     flex-direction: column;
     justify-content: center;
     text-align: center;
-    margin: 50px auto;
     width: 200px;
     height: 200px;
     max-width: 100%;

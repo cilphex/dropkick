@@ -2,6 +2,10 @@ div.clientView {
   margin: 0 auto;
   padding: 50px 0;
 
+  p.settingUp {
+    text-align: center;
+  }
+
   div.idRequired {
     text-align: center;
 
@@ -43,5 +47,12 @@ div.clientView {
 
   div.receivedFile {
     text-align: center;
+
+    a {
+      max-width: 250px;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
   }
 }
