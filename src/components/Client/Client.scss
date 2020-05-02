@@ -1,0 +1,58 @@
+div.clientView {
+  margin: 0 auto;
+  padding: 50px 0;
+
+  p.settingUp {
+    text-align: center;
+  }
+
+  div.idRequired {
+    text-align: center;
+
+    video {
+      display: block;
+      margin: 20px auto;
+      width: 300px;
+      height: 300px;
+      max-width: 100%;
+      border-radius: 1000px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+      object-fit: cover;
+
+      &.paused {
+        border: 5px solid #0BD;
+      }
+    }
+
+    p.waitingForApproval {
+      font-style: italic;
+      color: #999;
+    }
+  }
+
+  div.rejected {
+    text-align: center;
+
+    strong {
+      font-size: 20px;
+      font-weight: bold;
+      text-transform: uppercase;
+      color: red;
+    }
+  }
+
+  div.receivingFile {
+    text-align: center;
+  }
+
+  div.receivedFile {
+    text-align: center;
+
+    a {
+      max-width: 250px;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
+  }
+}

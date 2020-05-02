@@ -1,0 +1,128 @@
+div.serverView {
+  margin: 50px auto;
+
+  p.fileDrop {
+    display: flex;
+    margin: 0 auto 50px;
+    padding: 20px;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+    width: 200px;
+    height: 200px;
+    max-width: 100%;
+    text-shadow: 0 2px 3px rgba(0,0,0,0.25);
+    background: #f6f6f6;
+    border-radius: 400px;
+    box-shadow: 0 2px 7px rgba(0,0,0,0.25) inset;
+    transition: width 1.0s, height 1.0s, padding 1.0s, border-radius 1.0s;
+    transition-delay: 0.25s;
+    transition-timing-function: ease-in-out;
+
+    span.fileName {
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
+
+    span.dropText {
+      font-size: 20px;
+    }
+
+    &.rejected {
+      text-decoration: line-through;
+    }
+  }
+
+  div.shareUrl {
+    transition: transform 1.0s, opacity 1.0s;
+    transition-delay: 1.5s;
+    transition-timing-function: ease-in-out;
+    transform: translateY(-10px);
+    opacity: 0;
+
+    p {
+      text-align: center;
+    }
+
+    input {
+      display: block;
+      box-sizing: border-box;
+      margin: 0 auto;
+      padding: 0 20px;
+      width: 275px;
+      line-height: 48px; /* to compensate for border */
+      text-align: center;
+      border: 2px solid #000;
+      border-radius: 6px;
+      outline: none;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
+  }
+
+  div.pendingApproval {
+    text-align: center;
+
+    video {
+      display: block;
+      margin: 20px auto;
+      width: 300px;
+      height: 300px;
+      border-radius: 1000px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+      object-fit: cover;
+    }
+
+    div.buttons {
+      display: flex;
+      justify-content: center;
+
+      button {
+        margin: 5px;
+        width: 130px;
+      }
+    }
+  }
+
+  div.rejected {
+    text-align: center;
+
+    strong {
+      font-size: 20px;
+      font-weight: bold;
+      text-transform: uppercase;
+      color: red;
+    }
+  }
+
+  div.fileSent {
+    font-size: 20px;
+    text-align: center;
+  }
+
+  &.hover {
+    p.fileDrop {
+      background: #CFF7E3;
+    }
+  }
+
+  &.dropped {
+    p.fileDrop {
+      padding: 0 20px;
+      width: 235px;
+      height: 50px;
+      color: #fff;
+      background: #000;
+      border: none;
+      border-radius: 6px;
+      box-shadow: none;
+    }
+
+    div.shareUrl {
+      opacity: 1.0;
+      transform: translateY(0px);
+    }
+  }
+}

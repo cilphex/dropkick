@@ -1,0 +1,60 @@
+div.app {
+  padding: 50px;
+  height: 100%;
+
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: 16px;
+  box-sizing: border-box;
+  -webkit-font-smoothing: antialiased;
+
+  h1 {
+    height: 50px;
+    font-size: 0;
+    line-height: 0;
+    text-align: center;
+    background-image: url(/public/images/logo2.png);
+    background-size: contain;
+    background-position: center center;
+    background-repeat: no-repeat;
+  }
+
+  input {
+    font-size: 16px;
+  }
+
+  p {
+    margin: 10px 0;
+  }
+
+  button,
+  a.btn {
+    display: inline-block;
+    padding: 0 20px;
+    font-size: 16px;
+    font-weight: bold;
+    line-height: 50px;
+    text-align: center;
+    text-decoration: none;
+    color: #000;
+    border: 2px solid #000;
+    border-radius: 6px;
+    cursor: pointer;
+    outline: none;
+
+    &:hover,
+    &:active,
+    &:focus {
+      color: #fff;
+      background: #000;
+    }
+
+    &:active {
+      background: #555;
+    }
+  }
+
+  .error {
+    text-align: center;
+    color: red;
+  }
+}
