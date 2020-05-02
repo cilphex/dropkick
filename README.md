@@ -1,4 +1,4 @@
-<img src="images/logo.png" alt="Dropkick Logo" width="300"/>
+<img src="public/images/logo.png" alt="Dropkick Logo" width="300"/>
 
 _"Like snapchat meets dropbox"_ — Somebody
 
