@@ -49,9 +49,15 @@ the p2p connection.
 
 **Technicals**
 
-Run with node
+Run locally with webpack dev server
 
 ```
 yarn install
 yarn start:dev
+```
+
+Build into flat files to be served
+
+```
+yarn build
 ```

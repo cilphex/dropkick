@@ -1,21 +1,4 @@
 .DS_Store
-
-# npm installs
-node_modules/
-
-# bower
-js/components/
-
-# grunt
-js/babel/
-js/browserify/
-js/build/
-css/build/
-sourceMap.map
-.sass-cache/
-
-# Top-level index.html, etc.
-/*.html
-
-# Webstorm
 .idea
+node_modules
+build
