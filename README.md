@@ -8,8 +8,7 @@ _"Like snapchat meets dropbox"_ — Somebody
 
 **Notice**
 
-Still in development, only the "happy path" works, and it only works in Chrome
-49+.
+This was a hackathon project so it may have bugs.
 
 --
 
@@ -24,8 +23,8 @@ It does this by opening peer-to-peer connection between your web browser and
 another, using WebRTC.
 
 Once the connection is established, the receiving party confirms their identity
-by taking a selfie and sending it back to you inline on the page. When you
-approve their ID, the file is sent their way.
+by sharing a video of themselves with you. When you approve their identity, the
+file is sent on its way.
 
 It is a mashup of new security (WebRTC is OpenSSL-encrypted by default) and
 old-fashioned security (looking at somebody's face). Its purpose is to quickly
@@ -33,32 +32,26 @@ and easily deliver sensitive files to known recipients who may be in close
 proximity.
 
 The file being delivered never resides on a server. It is served directly from
-your web browser, and ceases to be served when your browser tab closes.
+your web browser, and ceases to be served when your browser tab closes. Same
+applies to the video feed.
+
+Some initial negotiation does happen through a server, but only to establish
+the p2p connection.
+
+--
+
+**Todo**
+
+- You currently need to enable the webcam as the sender, but ideally you
+  wouldn't have to.
 
 --
 
 **Technicals**
 
-It's flat html and javascript that's built using `grunt`, with the help of
-`bower` for package management.
+Run with node
 
 ```
-npm i -g grunt bower
-npm i
-bower install
-grunt
-```
-
-(I think)
-
-If the sass step fails, you may have to switch your ruby version:
-
-```
-rbenv global 2.3.0
-```
-
-To rebuild html, css, and js changes from source as you write it:
-
-```
-grunt watch
+yarn install
+yarn start:dev
 ```
