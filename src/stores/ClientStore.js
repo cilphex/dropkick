@@ -35,7 +35,7 @@ class ClientStore {
 
     if (!receivedFile) return null;
 
-    const blob = new window.Blob(receivedBuffer);
+    const blob = new Blob(receivedBuffer);
     return URL.createObjectURL(blob);
   }
 
@@ -85,28 +85,22 @@ class ClientStore {
   // ==========================================================================
   // WebRTC
 
-  getLocalStream = () => {
+  getLocalStream = async () => {
     const constraints = { video: true };
-    navigator.getUserMedia(
-      constraints,
-      this.getLocalStreamSuccess,
-      this.getLocalStreamError
-    );
-  };
 
-  getLocalStreamSuccess = (localVideoStream) => {
-    console.log('Client: getLocalStreamSuccess');
-    this.localVideoStream = localVideoStream;
-    this.getRemoteOffer();
-  };
-
-  getLocalStreamError = (err) => {
-    console.log('Client: getLocalStreamError', err);
-    if (err.message == 'Permission denied' || err.message == 'Requested device not found') {
-      this.error = 'Please enable your webcam';
+    try {
+      this.localVideoStream = await navigator.mediaDevices.getUserMedia(constraints);
+      console.log('Client: getLocalStream: success');
+      this.getRemoteOffer();
     }
-    else {
-      this.error = err.message;
+    catch(err) {
+      console.log('Client: getLocalStream: error');
+      if (err.message == 'Permission denied' || err.message == 'Requested device not found') {
+        this.error = 'Please enable your webcam';
+      }
+      else {
+        this.error = err.message;
+      }
     }
   };
 

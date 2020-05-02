@@ -65,8 +65,6 @@ class ServerStore {
       this.clientCandidateReceived = true;
       this.gotRemoteIceCandidate(client_candidate);
     }
-
-    // console.log('snapshot updated', doc.data());
   };
 
   updateServerDesc = async (desc) => {
@@ -94,28 +92,22 @@ class ServerStore {
   // ==========================================================================
   // WebRTC
   //
-  getLocalStream = () => {
+  getLocalStream = async () => {
     const constraints = { video: true };
-    navigator.getUserMedia(
-      constraints,
-      this.getLocalStreamSuccess,
-      this.getLocalStreamError
-    );
-  };
 
-  getLocalStreamSuccess = (stream) => {
-    console.log('Server: getLocalStreamSuccess');
-    this.stream = stream;
-    this.setupLocalConnection();
-  };
-
-  getLocalStreamError = (err) => {
-    console.log('Server: getLocalStreamError', err);
-    if (err.message == 'Permission denied' || err.message == 'Requested device not found') {
-      this.error = 'Please enable your webcam';
+    try {
+      this.stream = await navigator.mediaDevices.getUserMedia(constraints);
+      console.log('Server: getLocalStream: success');
+      this.setupLocalConnection();
     }
-    else {
-      this.error = err.message;
+    catch(err) {
+      console.log('Server: getLocalStream: error', err);
+      if (err.message == 'Permission denied' || err.message == 'Requested device not found') {
+        this.error = 'Please enable your webcam';
+      }
+      else {
+        this.error = err.message;
+      }
     }
   };
 
@@ -233,16 +225,16 @@ class ServerStore {
 
     const chunkSize = 16384;
     const sliceFile = (offset) => {
-      const reader = new window.FileReader();
-      reader.onload = (() => {
-        return (e) => {
-          sendChannel.send(e.target.result);
-          if (file.size > offset + e.target.result.byteLength) {
-            window.setTimeout(sliceFile, 0, offset + chunkSize);
-          }
-          // sendProgress line here
+      const reader = new FileReader();
+
+      reader.onload = (e) => {
+        sendChannel.send(e.target.result);
+        if (file.size > offset + e.target.result.byteLength) {
+          setTimeout(sliceFile, 0, offset + chunkSize);
         }
-      })(file);
+        // Could update progress with e.loaded/e.total here.
+      };
+
       const slice = file.slice(offset, offset + chunkSize);
       reader.readAsArrayBuffer(slice);
     };
