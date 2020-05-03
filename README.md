@@ -61,3 +61,26 @@ Build into flat files to be served
 ```
 yarn build
 ```
+
+--
+
+**Serving the static website**
+
+This site is deployed using Google Cloud. A Cloud Build trigger detects pushes
+to master and runs the steps in `cloudbuild.yaml`. Those steps build the flat
+files and copy them to a public bucket.
+
+The public bucket can be served directly as a flat HTTP site
+[using these steps](https://cloud.google.com/storage/docs/hosting-static-website).
+However, [modern browsers will not allow access to requested source devices
+(webcams, etc) unless the connection is secure (HTTPS)](https://stackoverflow.com/questions/34197653/getusermedia-in-chrome-47-without-using-https).
+This means that this flat-file site will not work unless served over HTTPS.
+
+To create an HTTPS site, the bucket can be used as a backend for an external-HTTPS
+load balancer, [as described in this guide](https://cloud.google.com/load-balancing/docs/https/ext-load-balancer-backend-buckets).
+
+As a production note to self for future projects served similarly, remember
+that a newly-created certificate won't finish provisioning until the relevant
+domains have had their A-records updated to point to the load balancer's IP,
+and that it may take an additional few minutes for HTTPS to begin working after
+HTTP.
