@@ -81,6 +81,17 @@ class ClientStore {
     }
   };
 
+  updateClientDesc = async (desc) => {
+    console.log('firebaseStore: updateClientDesc');
+
+    try {
+      await this.doc.update({ client_desc: desc });
+    }
+    catch(e) {
+      console.log('client: error setting client_desc', desc);
+    }
+  };
+
   // ==========================================================================
   // WebRTC
 
@@ -103,37 +114,28 @@ class ClientStore {
     }
   };
 
-  gotRemoteOffer = (offerDescJson) => {
+  gotRemoteOffer = async (offerDescJson) => {
     const offerDesc = new RTCSessionDescription(offerDescJson);
     this.localConnection = new RTCPeerConnection(rtcPeerConnectionMeta);
     this.localConnection.ondatachannel = this.gotRemoteDataChannel;
     this.localConnection.onicecandidate = this.gotLocalIceCandidate;
     this.localConnection.onaddstream = (e) => { /* Do nothing in client */ };
     this.localConnection.addTrack(this.localVideoStream.getTracks()[0], this.localVideoStream);
-
     this.localConnection.setRemoteDescription(offerDesc);
-    this.localConnection.createAnswer(
-      this.localAnswerSuccess,
-      this.localAnswerError
-    );
-  };
 
-  localAnswerSuccess = async (answerDesc) => {
-    console.log('Client: localAnswerSuccess');
-    this.localConnection.setLocalDescription(answerDesc);
-    const desc = this.localConnection.localDescription.toJSON();
-    if (desc.type === 'answer') {
-      try {
-        await this.doc.update({ client_desc: desc });
-      }
-      catch(e) {
-        console.log('client: error setting client_desc', this.uuid, desc);
+    try {
+      const answerDesc = await this.localConnection.createAnswer();
+      this.localConnection.setLocalDescription(answerDesc);
+      console.log('Client: local answer created');
+      const desc = this.localConnection.localDescription.toJSON();
+      if (desc.type === 'answer') {
+        this.updateClientDesc(desc);
       }
     }
-  };
-
-  localAnswerError = (err) => {
-    console.log('Client: localAnswerError', err);
+    catch(err) {
+      this.error = err.message;
+      console.log('Client: answer description error', err);
+    }
   };
 
   gotRemoteDataChannel = (e) => {
@@ -154,23 +156,19 @@ class ClientStore {
     }
   };
 
-  gotRemoteIceCandidate = (candidateJson) => {
+  gotRemoteIceCandidate = async (candidateJson) => {
     console.log('Client: gotRemoteIceCandidate');
     const candidate = new RTCIceCandidate(candidateJson);
-    this.localConnection.addIceCandidate(
-      candidate,
-      this.addIceCandidateSuccess,
-      this.addIceCandidateError
-    );
-  };
 
-  addIceCandidateSuccess = () => {
-    console.log('Client: addIceCandidateSuccess');
-    this.connectionReady = true;
-  };
-
-  addIceCandidateError = (err) => {
-    console.log('Client: addIceCandidateError', err);
+    try {
+      await this.localConnection.addIceCandidate(candidate);
+      console.log('Client: added ice candidate');
+      this.connectionReady = true;
+    }
+    catch(err) {
+      this.error = err.message;
+      console.log('Client: error adding ice candidate', err);
+    }
   };
 
   receiveChannelMessage = (e) => {

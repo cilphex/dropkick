@@ -72,7 +72,7 @@ class ServerStore {
       await this.doc.update({ server_desc: desc });
     }
     catch(err) {
-      console.log('firebaseStore: error setting server_desc', this.uuid, desc);
+      console.log('firebaseStore: error setting server_desc', desc);
     }
   };
 
@@ -89,7 +89,7 @@ class ServerStore {
 
   // ==========================================================================
   // WebRTC
-  //
+
   getLocalStream = async () => {
     const constraints = { video: true };
 
@@ -109,7 +109,7 @@ class ServerStore {
     }
   };
 
-  setupLocalConnection = () => {
+  setupLocalConnection = async () => {
     this.localConnection = new RTCPeerConnection(rtcPeerConnectionMeta);
     this.localConnection.onicecandidate = this.gotLocalIceCandidate;
     this.localConnection.onaddstream = this.getRemoteStreamSuccess;
@@ -122,10 +122,17 @@ class ServerStore {
     this.sendChannel.onclose = this.sendChannelStateChange;
     this.sendChannel.onerror = this.sendChannelError;
 
-    this.localConnection.createOffer(
-      this.localDescriptionSuccess,
-      this.localDescriptionError
-    );
+    try {
+      const desc = await this.localConnection.createOffer();
+      this.localConnection.setLocalDescription(desc);
+      const descJSON = this.localConnection.localDescription.toJSON();
+      this.updateServerDesc(descJSON);
+      console.log('Server: local description created');
+    }
+    catch(err) {
+      this.error = err.message;
+      console.log('Server: local description error', err);
+    }
   };
 
   getRemoteStreamSuccess = async (e) => {
@@ -138,17 +145,6 @@ class ServerStore {
       return;
     }
     this.remoteVideoStream = e.stream;
-  };
-
-  localDescriptionSuccess = (desc) => {
-    console.log('Server: gotLocalDescription');
-    this.localConnection.setLocalDescription(desc);
-    desc = this.localConnection.localDescription.toJSON();
-    this.updateServerDesc(desc);
-  };
-
-  localDescriptionError = (err) => {
-    console.log('Server: localDescriptionError', err);
   };
 
   sendChannelStateChange = () => {
@@ -189,24 +185,18 @@ class ServerStore {
     }
   };
 
-  gotRemoteIceCandidate(candidateJson) {
+  gotRemoteIceCandidate = async (candidateJson) => {
     console.log('Server: client candidate detected');
-
     const candidate = new RTCIceCandidate(candidateJson);
 
-    this.localConnection.addIceCandidate(
-      candidate,
-      this.addIceCandidateSuccess,
-      this.addIceCandidateError
-    );
-  };
-
-  addIceCandidateSuccess = () => {
-    console.log('Server: addIceCandidateSuccess');
-  };
-
-  addIceCandidateError = (err) => {
-    console.log('Server: addIceCandidateError', err);
+    try {
+      await this.localConnection.addIceCandidate(candidate);
+      console.log('Server: added ice candidate');
+    }
+    catch(err) {
+      this.error = err.message;
+      console.log('Server: error adding ice candidate', err);
+    }
   };
 
   rejectUser = async () => {
