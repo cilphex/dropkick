@@ -103,17 +103,14 @@ class ClientStore {
     }
   };
 
-  getRemoteOffer = () => {
-    this.doc.get().then(this.onSnapshot);
-  };
-
   gotRemoteOffer = (offerDescJson) => {
     const offerDesc = new RTCSessionDescription(offerDescJson);
     this.localConnection = new RTCPeerConnection(rtcPeerConnectionMeta);
     this.localConnection.ondatachannel = this.gotRemoteDataChannel;
     this.localConnection.onicecandidate = this.gotLocalIceCandidate;
     this.localConnection.onaddstream = (e) => { /* Do nothing in client */ };
-    this.localConnection.addStream(this.localVideoStream);
+    this.localConnection.addTrack(this.localVideoStream.getTracks()[0], this.localVideoStream);
+
     this.localConnection.setRemoteDescription(offerDesc);
     this.localConnection.createAnswer(
       this.localAnswerSuccess,

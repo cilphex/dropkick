@@ -21,10 +21,7 @@ class ServerStore {
   constructor(uuid) {
     this.uuid = uuid;
     this.initFirebase();
-    // this.setupDbListener();
     this.getLocalStream();
-    // this.setupLocalConnection();
-    // setTimeout(this.setupLocalConnection, 2000);
   }
 
   // ==========================================================================
@@ -116,7 +113,7 @@ class ServerStore {
     this.localConnection = new RTCPeerConnection(rtcPeerConnectionMeta);
     this.localConnection.onicecandidate = this.gotLocalIceCandidate;
     this.localConnection.onaddstream = this.getRemoteStreamSuccess;
-    this.localConnection.addStream(this.stream);
+    this.localConnection.addTrack(this.stream.getTracks()[0], this.stream);
 
     this.sendChannel = this.localConnection.createDataChannel('my-test-channel', {});
     this.sendChannel.binaryType = 'arraybuffer';
