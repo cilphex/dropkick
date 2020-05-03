@@ -124,7 +124,7 @@ class ServerStore {
 
     try {
       const desc = await this.localConnection.createOffer();
-      this.localConnection.setLocalDescription(desc);
+      await this.localConnection.setLocalDescription(desc);
       const descJSON = this.localConnection.localDescription.toJSON();
       this.updateServerDesc(descJSON);
       console.log('Server: local description created');

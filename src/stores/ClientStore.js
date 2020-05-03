@@ -125,7 +125,7 @@ class ClientStore {
 
     try {
       const answerDesc = await this.localConnection.createAnswer();
-      this.localConnection.setLocalDescription(answerDesc);
+      await this.localConnection.setLocalDescription(answerDesc);
       console.log('Client: local answer created');
       const desc = this.localConnection.localDescription.toJSON();
       if (desc.type === 'answer') {
