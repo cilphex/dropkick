@@ -26,7 +26,6 @@ class ClientStore {
   constructor(uuid) {
     this.uuid = uuid;
     this.initFirebase();
-    this.setupDbListener();
     this.getLocalStream();
   }
 
@@ -89,9 +88,9 @@ class ClientStore {
     const constraints = { video: true };
 
     try {
-      this.localVideoStream = await navigator.mediaDevices.getUserMedia(constraints);
       console.log('Client: getLocalStream: success');
-      this.getRemoteOffer();
+      this.localVideoStream = await navigator.mediaDevices.getUserMedia(constraints);
+      this.setupDbListener();
     }
     catch(err) {
       console.log('Client: getLocalStream: error');
@@ -147,6 +146,7 @@ class ClientStore {
     this.receiveChannel.onmessage = this.receiveChannelMessage;
     this.receiveChannel.onopen = this.receiveChannelStateChange;
     this.receiveChannel.onclose = this.receiveChannelStateChange;
+    this.receiveChannel.onerror = this.receiveChannelError;
   };
 
   gotLocalIceCandidate = (e) => {
@@ -214,8 +214,17 @@ class ClientStore {
   };
 
   receiveChannelStateChange = () => {
-    console.log('Client: receiveChannelStateChange', this.receiveChannel.readyState);
+    const { readyState } = this.receiveChannel;
+    console.log('Client: receiveChannelStateChange', readyState);
+    if (readyState === 'closed') {
+      this.error = 'The sender disconnected (channel closed)';
+    }
   };
+
+  receiveChannelError = (err) => {
+    console.log('Client: receiveChannelError', err);
+    this.error = 'The sender disconnected (channel error)'
+  }
 }
 
 export default ClientStore;

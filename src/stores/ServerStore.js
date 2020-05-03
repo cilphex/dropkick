@@ -21,7 +21,7 @@ class ServerStore {
   constructor(uuid) {
     this.uuid = uuid;
     this.initFirebase();
-    this.setupDbListener();
+    // this.setupDbListener();
     this.getLocalStream();
     // this.setupLocalConnection();
     // setTimeout(this.setupLocalConnection, 2000);
@@ -49,6 +49,7 @@ class ServerStore {
   setupDbListener() {
     this.doc.onSnapshot(this.onSnapshot);
     this.doc.set({});
+    this.setupLocalConnection();
   }
 
   onSnapshot = (doc) => {
@@ -96,9 +97,9 @@ class ServerStore {
     const constraints = { video: true };
 
     try {
-      this.stream = await navigator.mediaDevices.getUserMedia(constraints);
       console.log('Server: getLocalStream: success');
-      this.setupLocalConnection();
+      this.stream = await navigator.mediaDevices.getUserMedia(constraints);
+      this.setupDbListener();
     }
     catch(err) {
       console.log('Server: getLocalStream: error', err);
@@ -119,10 +120,10 @@ class ServerStore {
 
     this.sendChannel = this.localConnection.createDataChannel('my-test-channel', {});
     this.sendChannel.binaryType = 'arraybuffer';
+    this.sendChannel.onmessage = this.sendChannelMessage;
     this.sendChannel.onopen = this.sendChannelStateChange;
     this.sendChannel.onclose = this.sendChannelStateChange;
     this.sendChannel.onerror = this.sendChannelError;
-    this.sendChannel.onmessage = this.sendChannelMessage;
 
     this.localConnection.createOffer(
       this.localDescriptionSuccess,
@@ -154,12 +155,16 @@ class ServerStore {
   };
 
   sendChannelStateChange = () => {
-    console.log('Server: sendChannelStateChange', this.sendChannel.readyState);
+    const { readyState } = this.sendChannel;
+    console.log('Server: sendChannelStateChange', readyState);
+    if (readyState === 'closed') {
+      this.error = 'The receiver disconnected (channel closed)';
+    }
   };
 
   sendChannelError = (err) => {
     console.log('Server: sendChannelError', err);
-    this.error = 'The other side disconnected';
+    this.error = 'The receiver disconnected (channel error)';
   };
 
   sendChannelMessage = (e) => {
