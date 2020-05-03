@@ -2,13 +2,14 @@
 
 _"Like snapchat meets dropbox"_ — Somebody
 
-[View live version on Github Pages](https://cilphex.github.io/dropkick/)
+[View live version at dropkick.page](https://dropkick.page)
 
 --
 
 **Notice**
 
-This was a hackathon project so it may have bugs.
+- This was a hackathon project so it may have bugs
+- May only work in Chrome
 
 --
 

@@ -88,7 +88,7 @@ class Server extends React.Component {
         </p>
 
         {!sentFile && !remoteVideoStream && (
-          <div className={`${styles.shareUrl} ${styles.hidden}`}>
+          <div className={styles.shareUrl}>
             <p>Share this link:</p>
             <input
               type="text"

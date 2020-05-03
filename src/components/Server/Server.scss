@@ -35,6 +35,12 @@ div.serverView {
   }
 
   div.shareUrl {
+    /* position, height, and overflow are to not just visibly hide the element,
+       but remote its impact on margin spacing and breaking of other elements,
+       so they can be positioned as if it were absent. */
+    position: absolute;
+    height: 0;
+    overflow: hidden;
     transition: transform 1.0s, opacity 1.0s;
     transition-delay: 1.5s;
     transition-timing-function: ease-in-out;
@@ -121,6 +127,12 @@ div.serverView {
     }
 
     div.shareUrl {
+      /* See the comment above in the original definition for this class
+         regarding position, height, and overflow here. */
+      position: static;
+      height: auto;
+      overflow: visible;
+      height: auto;
       opacity: 1.0;
       transform: translateY(0px);
     }

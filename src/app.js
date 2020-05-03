@@ -28,35 +28,41 @@ class App extends React.Component {
     return match && match[1];
   }
 
-  render() {
+  get appProps() {
+    const props = {};
+
+    if (this.isSender()) {
+      props.onDragEnter = fileDropStore.onDragEnter;
+      props.onDragLeave = fileDropStore.onDragLeave;
+      props.onDragOver = fileDropStore.onDragOver;
+      props.onDrop = fileDropStore.onDrop;
+    }
+
+    return props;
+  }
+
+  pageView() {
     if (this.isReceiver()) {
-      return (
-        <div className={styles.app}>
-          <h1>dropkick</h1>
-          <Client queryUuid={this.queryUuid} />
-        </div>
-      );
+      return <Client queryUuid={this.queryUuid} />;
     }
 
     if (this.isSender()) {
-      return (
-        <div
-          className={styles.app}
-          onDragEnter={fileDropStore.onDragEnter}
-          onDragLeave={fileDropStore.onDragLeave}
-          onDragOver={fileDropStore.onDragOver}
-          onDrop={fileDropStore.onDrop}
-        >
-          <h1>dropkick</h1>
-          <Server />
-        </div>
-      );
+      return <Server />;
     }
 
+    return <Empty />;
+  }
+
+  render() {
     return (
-      <div className={styles.app}>
-        <h1>dropkick</h1>
-        <Empty />
+      <div className={styles.app} {...this.appProps}>
+        <div className={styles.content}>
+          <h1>dropkick</h1>
+          {this.pageView()}
+        </div>
+        <div className={styles.footer}>
+          <a href="https://github.com/cilphex/dropkick">Open source</a>
+        </div>
       </div>
     );
   }

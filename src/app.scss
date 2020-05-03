@@ -1,4 +1,6 @@
 div.app {
+  display: flex;
+  flex-direction: column;
   padding: 50px;
   height: 100%;
 
@@ -56,5 +58,23 @@ div.app {
   .error {
     text-align: center;
     color: red;
+  }
+
+  div.content {
+    flex-grow: 1;
+  }
+
+  div.footer {
+    text-align: center;
+
+    a {
+      text-decoration: none;
+      color: #888;
+
+      &:hover,
+      &:active {
+        text-decoration: underline;
+      }
+    }
   }
 }
