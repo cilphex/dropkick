@@ -9,8 +9,9 @@ _"Like snapchat meets dropbox"_ — Somebody
 **Notice**
 
 - This was a hackathon project so it may have bugs
-- Currently only works in Chrome. RTC (the p2p stuff) was new at the time and
-  very fragile. Was not programmed to modern spec and interoperability.
+- I put a little bit of work into trying to get it to work in Chrome, Firefox,
+  and Safari, but no guarantees. RTC (the p2p stuff) was new at the time and
+  very fragile.
 
 --
 
