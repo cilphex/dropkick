@@ -67,7 +67,7 @@ class ServerStore {
 
   setupLocalConnection = async () => {
     this.localConnection = new RTCPeerConnection(rtcPeerConnectionMeta);
-    this.localConnection.onicecandidate = this.gotLocalIceCandidate;
+    this.localConnection.onicecandidate = (e) => { /* Gets called, but we don't use it */ };
     this.localConnection.ontrack = this.remoteTrackAdded;
     this.localConnection.addTrack(this.stream.getTracks()[0], this.stream);
 
@@ -120,12 +120,11 @@ class ServerStore {
     console.log('Server: remoteStreamAdded', e.streams);
     try {
       await this.doc.update({ connection_made: true });
+      this.remoteVideoStream = e.streams[0];
     }
     catch(err) {
       this.error = err;
-      return;
     }
-    this.remoteVideoStream = e.streams[0];
   };
 
   sendChannelStateChange = () => {
@@ -147,14 +146,6 @@ class ServerStore {
       case 'done-receiving':
         this.sendFileComplete();
         break;
-    }
-  };
-
-  gotLocalIceCandidate = async (e) => {
-    console.log('Server: gotLocalIceCandidate');
-    if (e.candidate) {
-      const candidate = e.candidate.toJSON();
-      await this.doc.update({ server_candidate: candidate });
     }
   };
 

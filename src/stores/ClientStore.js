@@ -7,7 +7,6 @@ class ClientStore {
   uuid = null;
   doc = null;
   serverDescReceived = false;
-  serverCandidateReceived = false;
   localConnection = null;
   fileSize = 0;
   receivedBuffer = [];
@@ -80,7 +79,7 @@ class ClientStore {
   onSnapshot = async (doc) => {
     const data = doc.data();
     const { connectionReady } = this;
-    const { connection_made, server_desc, server_candidate } = data;
+    const { connection_made, server_desc } = data;
 
     if (!connectionReady && connection_made) {
       this.alreadyUsed = true;
@@ -90,11 +89,10 @@ class ClientStore {
     if (server_desc && !this.serverDescReceived) {
       this.serverDescReceived = true;
       await this.gotRemoteOffer(server_desc);
+      this.connectionReady = true;
     }
-    else if (server_candidate && !this.serverCandidateReceived) {
-      this.serverCandidateReceived = true;
-      await this.gotRemoteIceCandidate(server_candidate);
-    }
+
+    console.log('aaa');
   };
 
   gotRemoteOffer = async (offerDescJson) => {
@@ -136,21 +134,6 @@ class ClientStore {
     if (e.candidate) {
       const candidate = e.candidate.toJSON();
       await this.doc.update({ client_candidate: candidate });
-    }
-  };
-
-  gotRemoteIceCandidate = async (candidateJson) => {
-    console.log('Client: gotRemoteIceCandidate');
-    const candidate = new RTCIceCandidate(candidateJson);
-
-    try {
-      await this.localConnection.addIceCandidate(candidate);
-      console.log('Client: added ice candidate');
-      this.connectionReady = true;
-    }
-    catch(err) {
-      this.error = err.message;
-      console.log('Client: error adding ice candidate', err);
     }
   };
 
