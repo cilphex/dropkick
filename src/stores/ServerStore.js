@@ -23,7 +23,7 @@ class ServerStore {
     this.initFirebase();
   }
 
-  initFirebase = () => {
+  initFirebase = async () => {
     firebase.initializeApp({
       apiKey: "AIzaSyDGHYeXsm1N9Bd06CqE_WoC_qaPu0nI5i8",
       authDomain: "dropkick-730ba.firebaseapp.com",
@@ -38,7 +38,7 @@ class ServerStore {
     const db = firebase.firestore();
     this.doc = db.collection('uuids').doc(this.uuid);
 
-    this.getLocalVideoStream();
+    await this.getLocalVideoStream();
   };
 
   getLocalVideoStream = async () => {

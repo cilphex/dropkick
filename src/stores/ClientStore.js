@@ -37,7 +37,7 @@ class ClientStore {
     return URL.createObjectURL(blob);
   }
 
-  initFirebase = () => {
+  initFirebase = async () => {
     firebase.initializeApp({
       apiKey: "AIzaSyDGHYeXsm1N9Bd06CqE_WoC_qaPu0nI5i8",
       authDomain: "dropkick-730ba.firebaseapp.com",
@@ -52,7 +52,7 @@ class ClientStore {
     const db = firebase.firestore();
     this.doc = db.collection('uuids').doc(this.uuid);
 
-    this.getLocalVideoStream();
+    await this.getLocalVideoStream();
   };
 
   getLocalVideoStream = async () => {

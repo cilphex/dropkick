@@ -8,7 +8,7 @@ import Server from './components/Server';
 import Empty from './components/Empty';
 
 import styles from './app.scss';
-// import adapter from 'webrtc-adapter';
+import adapter from 'webrtc-adapter';
 
 @observer
 class App extends React.Component {
