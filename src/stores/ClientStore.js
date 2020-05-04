@@ -26,7 +26,6 @@ class ClientStore {
   constructor(uuid) {
     this.uuid = uuid;
     this.initFirebase();
-    this.getLocalStream();
   }
 
   @computed get fileObjectURL() {
@@ -38,10 +37,7 @@ class ClientStore {
     return URL.createObjectURL(blob);
   }
 
-  // ==========================================================================
-  // Firebase
-
-  initFirebase() {
+  initFirebase = () => {
     firebase.initializeApp({
       apiKey: "AIzaSyDGHYeXsm1N9Bd06CqE_WoC_qaPu0nI5i8",
       authDomain: "dropkick-730ba.firebaseapp.com",
@@ -55,13 +51,33 @@ class ClientStore {
 
     const db = firebase.firestore();
     this.doc = db.collection('uuids').doc(this.uuid);
-  }
 
-  setupDbListener() {
+    this.getLocalVideoStream();
+  };
+
+  getLocalVideoStream = async () => {
+    const constraints = { video: true };
+    try {
+      console.log('Client: getLocalVideoStream: success');
+      this.localVideoStream = await navigator.mediaDevices.getUserMedia(constraints);
+      await this.setupDbListener();
+    }
+    catch(err) {
+      console.log('Client: getLocalStream: error');
+      if (err.message === 'Permission denied' || err.message === 'Requested device not found') {
+        this.error = 'Please enable your webcam';
+      }
+      else {
+        this.error = err.message;
+      }
+    }
+  };
+
+  setupDbListener = async () => {
     this.doc.onSnapshot(this.onSnapshot);
-  }
+  };
 
-  onSnapshot = (doc) => {
+  onSnapshot = async (doc) => {
     const data = doc.data();
     const { connectionReady } = this;
     const { connection_made, server_desc, server_candidate } = data;
@@ -73,44 +89,11 @@ class ClientStore {
 
     if (server_desc && !this.serverDescReceived) {
       this.serverDescReceived = true;
-      this.gotRemoteOffer(server_desc);
+      await this.gotRemoteOffer(server_desc);
     }
     else if (server_candidate && !this.serverCandidateReceived) {
       this.serverCandidateReceived = true;
-      this.gotRemoteIceCandidate(server_candidate);
-    }
-  };
-
-  updateClientDesc = async (desc) => {
-    console.log('firebaseStore: updateClientDesc');
-
-    try {
-      await this.doc.update({ client_desc: desc });
-    }
-    catch(e) {
-      console.log('client: error setting client_desc', desc);
-    }
-  };
-
-  // ==========================================================================
-  // WebRTC
-
-  getLocalStream = async () => {
-    const constraints = { video: true };
-
-    try {
-      console.log('Client: getLocalStream: success');
-      this.localVideoStream = await navigator.mediaDevices.getUserMedia(constraints);
-      this.setupDbListener();
-    }
-    catch(err) {
-      console.log('Client: getLocalStream: error');
-      if (err.message == 'Permission denied' || err.message == 'Requested device not found') {
-        this.error = 'Please enable your webcam';
-      }
-      else {
-        this.error = err.message;
-      }
+      await this.gotRemoteIceCandidate(server_candidate);
     }
   };
 
@@ -119,9 +102,9 @@ class ClientStore {
     this.localConnection = new RTCPeerConnection(rtcPeerConnectionMeta);
     this.localConnection.ondatachannel = this.gotRemoteDataChannel;
     this.localConnection.onicecandidate = this.gotLocalIceCandidate;
-    this.localConnection.onaddstream = (e) => { /* Do nothing in client */ };
+    this.localConnection.ontrack = (e) => { /* Do nothing in client */ };
     this.localConnection.addTrack(this.localVideoStream.getTracks()[0], this.localVideoStream);
-    this.localConnection.setRemoteDescription(offerDesc);
+    await this.localConnection.setRemoteDescription(offerDesc);
 
     try {
       const answerDesc = await this.localConnection.createAnswer();
@@ -129,7 +112,7 @@ class ClientStore {
       console.log('Client: local answer created');
       const desc = this.localConnection.localDescription.toJSON();
       if (desc.type === 'answer') {
-        this.updateClientDesc(desc);
+        await this.doc.update({ client_desc: desc });
       }
     }
     catch(err) {
@@ -148,11 +131,11 @@ class ClientStore {
     this.receiveChannel.onerror = this.receiveChannelError;
   };
 
-  gotLocalIceCandidate = (e) => {
+  gotLocalIceCandidate = async (e) => {
     console.log('Client: gotLocalIceCandidate');
     if (e.candidate) {
       const candidate = e.candidate.toJSON();
-      this.doc.update({ client_candidate: candidate });
+      await this.doc.update({ client_candidate: candidate });
     }
   };
 
@@ -211,6 +194,7 @@ class ClientStore {
   receiveChannelStateChange = () => {
     const { readyState } = this.receiveChannel;
     console.log('Client: receiveChannelStateChange', readyState);
+
     if (readyState === 'closed') {
       this.error = 'The sender disconnected (channel closed)';
     }
