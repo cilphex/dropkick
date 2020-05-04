@@ -82,6 +82,9 @@ This means that this flat-file site will not work unless served over HTTPS.
 To create an HTTPS site, the bucket can be used as a backend for a Google Cloud
 external-HTTPS load balancer, [as described in this guide](https://cloud.google.com/load-balancing/docs/https/ext-load-balancer-backend-buckets).
 
+To redirect HTTP traffic to HTTPS, create a separate load balancer that does
+only that, [as described here](https://cloud.google.com/load-balancing/docs/https/setting-up-traffic-management).
+
 As a production note to self for future projects served similarly, remember
 that a newly-created certificate won't finish provisioning until the relevant
 domains have had their A-records updated to point to the load balancer's IP,
