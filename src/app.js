@@ -58,7 +58,7 @@ class App extends React.Component {
     return (
       <div className={styles.app} {...this.appProps}>
         <div className={styles.content}>
-          <h1>dropkick</h1>
+          <h1><a href="/">dropkick</a></h1>
           {this.pageView()}
         </div>
         <div className={styles.footer}>
