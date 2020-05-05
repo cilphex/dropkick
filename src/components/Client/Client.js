@@ -20,6 +20,7 @@ class Client extends React.Component {
     const { current: videoElement } = this.videoRef;
 
     if (!videoElement) return;
+    if (videoElement.srcObject) return;
 
     videoElement.srcObject = localVideoStream;
   }
