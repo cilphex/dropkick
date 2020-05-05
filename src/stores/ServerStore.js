@@ -67,7 +67,8 @@ class ServerStore {
 
   setupLocalConnection = async () => {
     this.localConnection = new RTCPeerConnection(rtcPeerConnectionMeta);
-    this.localConnection.onicecandidate = (e) => { /* Gets called, but we don't use it */ };
+    this.localConnection.onicecandidate = this.onIceCandidate;
+    this.localConnection.ondatachannel = this.onDataChannel;
     this.localConnection.ontrack = this.remoteTrackAdded;
     this.localConnection.addTrack(this.stream.getTracks()[0], this.stream);
 
@@ -114,6 +115,14 @@ class ServerStore {
         console.log('Server: error adding ice candidate', err);
       }
     }
+  };
+
+  onIceCandidate = (e) => {
+    console.log('onIceCandidate');
+  };
+
+  onDataChannel = (e) => {
+    console.log('onDataChannel', e);
   };
 
   remoteTrackAdded = async (e) => {

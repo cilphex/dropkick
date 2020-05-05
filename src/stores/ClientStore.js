@@ -127,6 +127,10 @@ class ClientStore {
     this.receiveChannel.onopen = this.receiveChannelStateChange;
     this.receiveChannel.onclose = this.receiveChannelStateChange;
     this.receiveChannel.onerror = this.receiveChannelError;
+
+    // tmp
+    console.log('Sending channel test response');
+    this.receiveChannel.send('test');
   };
 
   gotLocalIceCandidate = async (e) => {
