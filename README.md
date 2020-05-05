@@ -45,6 +45,8 @@ the p2p connection.
 
 **Todo**
 
+- Sending between local tabs work, but not separate computers.
+- Lower cache-control max-age so prod refreshes more quickly. [See this thread](https://stackoverflow.com/questions/61608092/how-can-i-clear-the-cache-on-a-static-cloud-storage-website-after-bucket-file-ch).
 - You currently need to enable the webcam as the sender, but ideally you
   wouldn't have to.
 
