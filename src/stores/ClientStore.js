@@ -128,7 +128,7 @@ class ClientStore {
     this.receiveChannel.onclose = this.receiveChannelStateChange;
     this.receiveChannel.onerror = this.receiveChannelError;
 
-    // tmp
+    // TODO: tmp
     console.log('Sending channel test response');
     this.receiveChannel.send('test');
   };
